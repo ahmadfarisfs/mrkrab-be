@@ -1,19 +1,19 @@
-package project
+package controllers
 
 import "net/http"
 
-func New(w http.ResponseWriter, r *http.Request) {
+func NewProject(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func Get(w http.ResponseWriter, r *http.Request) {
+func GetProject(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func Remove(w http.ResponseWriter, r *http.Request) {
+func RemoveProject(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func Update(w http.ResponseWriter, r *http.Request) {
+func UpdateProject(w http.ResponseWriter, r *http.Request) {
 	return
 }

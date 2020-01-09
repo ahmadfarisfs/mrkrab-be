@@ -1,13 +1,16 @@
 package main
 
 import (
+	"log"
+	"mrkrab-be/controllers"
+	model "mrkrab-be/models"
+	"mrkrab-be/routes"
 	"net/http"
 	"os"
 	"time"
 
-	"mrkrab-be/controllers"
-
-	"github.com/ddo/go-mux-mvc/models/logger"
+	//	"github.com/ddo/go-mux-mvc/models/logger"
+	"github.com/joho/godotenv"
 	// init db
 )
 
@@ -21,27 +24,27 @@ const (
 )
 
 func main() {
+	godotenv.Load()
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
-	logger.Log("port:", port)
-
-	// route
-	handler := controllers.New()
-
+	err := controllers.DB.AutoMigrate(&model.Transaction{}, &model.User{}, &model.TransactionCategory{}, &model.Project{}).Error
+	if err != nil {
+		panic("Cannot migrate DB: " + err.Error())
+	}
 	server := &http.Server{
-		Addr:    "0.0.0.0:" + port,
-		Handler: handler,
-
+		Addr:              "0.0.0.0:" + port,
 		IdleTimeout:       idleTimeout,
 		WriteTimeout:      writeTimeout,
 		ReadHeaderTimeout: readHeaderTimeout,
 		ReadTimeout:       readTimeout,
 	}
-
-	err := server.ListenAndServe()
+	log.Println("Serving on port " + port)
+	http.Handle("/", routes.Handlers())
+	err = server.ListenAndServe()
 	if err != nil {
-		logger.Log("ERR ListenAndServe:", err)
+		log.Println("ERR ListenAndServe:", err)
 	}
 }

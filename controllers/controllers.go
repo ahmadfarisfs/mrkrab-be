@@ -1,29 +1,22 @@
 package controllers
 
 import (
-	"mrkrab-be/controllers/project"
+	"mrkrab-be/db"
 	"net/http"
+	"obb-new-parking/controllers"
 
-	"github.com/gorilla/mux"
+	"github.com/thedevsaddam/renderer"
 )
 
-// New .
-func New() http.Handler {
-	r := mux.NewRouter()
-	// project
-	r.HandleFunc("/project", project.New).Methods("POST")
-	r.HandleFunc("/project", project.Get).Methods("GET")
-	r.HandleFunc("/project/{id}", project.Get).Methods("GET")
+var DB = db.ConnectDatabase()
 
-	r.HandleFunc("/project/{id}", project.Remove).Methods("DELETE")
-	r.HandleFunc("/project/{id}", project.Update).Methods("PATCH")
-	// transaction
+var Rnd = renderer.New()
 
-	// user
-	r.HandleFunc("/user", user.New).Methods("POST")
-	r.HandleFunc("/user/{id}", user.Get).Methods("GET")
-	r.HandleFunc("/user/{id}", user.Remove).Methods("DELETE")
-	r.HandleFunc("/user/{id}", user.Update).Methods("UPDATE")
+func GenerateStandardResponse(w http.ResponseWriter, reason string, statusCode int) {
+	controllers.Rnd.JSON(w, statusCode, struct {
+		Reason string `json:"reason"`
+	}{
+		Reason: reason,
+	})
 
-	return r
 }

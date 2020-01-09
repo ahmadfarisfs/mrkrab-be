@@ -8,7 +8,7 @@ const (
 	SystemAdmininstrator UserRoleType = iota
 	Treasurer
 	Engineer
-	BOD
+	BoardOfDirector
 )
 
 var types = [...]string{
