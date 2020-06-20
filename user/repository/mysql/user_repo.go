@@ -3,8 +3,8 @@ package mysql
 import (
 	"context"
 
-	"github.com/bxcodec/go-clean-arch/domain"
-	"github.com/bxcodec/go-clean-arch/utilities"
+	"github.com/ahmadfarisfs/mrkrab-be/domain"
+	"github.com/ahmadfarisfs/mrkrab-be/utilities"
 	"github.com/jinzhu/gorm"
 )
 

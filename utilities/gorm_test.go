@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bxcodec/go-clean-arch/domain"
+	"github.com/ahmadfarisfs/mrkrab-be/domain"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )

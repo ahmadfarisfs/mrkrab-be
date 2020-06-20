@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/bxcodec/go-clean-arch/domain"
+	"github.com/ahmadfarisfs/mrkrab-be/domain"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

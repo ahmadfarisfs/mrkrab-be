@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/bxcodec/go-clean-arch/domain"
+	"github.com/ahmadfarisfs/mrkrab-be/domain"
 )
 
 type userUseCase struct {

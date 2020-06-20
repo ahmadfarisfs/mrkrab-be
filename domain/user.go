@@ -10,7 +10,8 @@ type User struct {
 	FirstName string    `gorm:"not null" json:"firstname" validate:"required"`
 	LastName  string    `gorm:"not null" json:"lastname" validate:"required"`
 	Email     string    `gorm:"not null;unique" json:"email" validate:"required,email"`
-	Phone     string    `gorm:"not null;unique" json:"phone"`
+	Phone     string    `gorm:"not null;unique" json:"phone" validate:"required"`
+	Photo     string    `json:"photo"`
 	Role      string    `gorm:"not null;type:enum('sa','pic','member')" json:"role"`
 	Password  string    `gorm:"not null" json:"-"`
 	Projects  []Project `gorm:"many2many:user_projects;foreignkey:id;references:id;"`
