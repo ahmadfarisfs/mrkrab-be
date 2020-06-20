@@ -1,1 +1,0 @@
-cloud_sql_proxy.exe -instances=silmioti-wywuwd:asia-southeast1:silmioti-dev=tcp:3306 -credential_file=silmioti-compute.json

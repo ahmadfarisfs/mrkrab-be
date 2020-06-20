@@ -1,50 +1,73 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
-	"mrkrab-be/controllers"
-	model "mrkrab-be/models"
-	"mrkrab-be/routes"
-	"net/http"
-	"os"
+	"net/url"
 	"time"
 
-	//	"github.com/ddo/go-mux-mvc/models/logger"
-	"github.com/joho/godotenv"
-	// init db
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/labstack/echo"
+	"github.com/spf13/viper"
+
+	_articleHttpDelivery "github.com/bxcodec/go-clean-arch/article/delivery/http"
+	_articleHttpDeliveryMiddleware "github.com/bxcodec/go-clean-arch/article/delivery/http/middleware"
+	_articleRepo "github.com/bxcodec/go-clean-arch/article/repository/mysql"
+	_articleUcase "github.com/bxcodec/go-clean-arch/article/usecase"
+	_authorRepo "github.com/bxcodec/go-clean-arch/author/repository/mysql"
 )
 
-const (
-	defaultPort = "8008"
+func init() {
+	viper.SetConfigFile(`config.json`)
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(err)
+	}
 
-	idleTimeout       = 30 * time.Second
-	writeTimeout      = 180 * time.Second
-	readHeaderTimeout = 10 * time.Second
-	readTimeout       = 10 * time.Second
-)
+	if viper.GetBool(`debug`) {
+		log.Println("Service RUN on DEBUG mode")
+	}
+}
 
 func main() {
-	godotenv.Load()
+	dbHost := viper.GetString(`database.host`)
+	dbPort := viper.GetString(`database.port`)
+	dbUser := viper.GetString(`database.user`)
+	dbPass := viper.GetString(`database.pass`)
+	dbName := viper.GetString(`database.name`)
+	connection := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
+	val := url.Values{}
+	val.Add("parseTime", "1")
+	val.Add("loc", "Asia/Jakarta")
+	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
+	dbConn, err := sql.Open(`mysql`, dsn)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
-	}
-	err := controllers.DB.AutoMigrate(&model.Transaction{}, &model.User{}, &model.TransactionCategory{}, &model.Project{}).Error
 	if err != nil {
-		panic("Cannot migrate DB: " + err.Error())
+		log.Fatal(err)
 	}
-	server := &http.Server{
-		Addr:              "0.0.0.0:" + port,
-		IdleTimeout:       idleTimeout,
-		WriteTimeout:      writeTimeout,
-		ReadHeaderTimeout: readHeaderTimeout,
-		ReadTimeout:       readTimeout,
-	}
-	log.Println("Serving on port " + port)
-	http.Handle("/", routes.Handlers())
-	err = server.ListenAndServe()
+	err = dbConn.Ping()
 	if err != nil {
-		log.Println("ERR ListenAndServe:", err)
+		log.Fatal(err)
 	}
+
+	defer func() {
+		err := dbConn.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	e := echo.New()
+	middL := _articleHttpDeliveryMiddleware.InitMiddleware()
+	e.Use(middL.CORS)
+
+	authorRepo := _authorRepo.NewMysqlAuthorRepository(dbConn)
+	ar := _articleRepo.NewMysqlArticleRepository(dbConn)
+
+	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
+	au := _articleUcase.NewArticleUsecase(ar, authorRepo, timeoutContext)
+	_articleHttpDelivery.NewArticleHandler(e, au)
+
+	log.Fatal(e.Start(viper.GetString("server.address")))
 }
