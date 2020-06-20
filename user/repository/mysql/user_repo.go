@@ -4,8 +4,10 @@ import (
 	"context"
 
 	"github.com/ahmadfarisfs/mrkrab-be/domain"
-	"github.com/ahmadfarisfs/mrkrab-be/utilities"
-	"github.com/jinzhu/gorm"
+
+	"gorm.io/gorm"
+	//	"github.com/jinzhu/gorm"
+	//"github.com/jinzhu/gorm"
 )
 
 type mysqlUserRepo struct {
@@ -15,13 +17,13 @@ type mysqlUserRepo struct {
 func (r *mysqlUserRepo) Fetch(ctx context.Context, limitPerPage int64, page int64) (res []domain.User, err error) {
 	users := []domain.User{}
 	query := r.DB
-	utilities.Paging(ctx, &utilities.Param{
-		DB:      query,
-		Page:    int(page),
-		Limit:   int(limitPerPage),
-		OrderBy: []string{"id desc"},
-	}, &users)
-	return users, err
+	/*	utilities.Paging(ctx, &utilities.Param{
+			DB:      query,
+			Page:    int(page),
+			Limit:   int(limitPerPage),
+			OrderBy: []string{"id desc"},
+		}, &users)
+	*/return users, nil
 }
 func (r *mysqlUserRepo) GetByID(ctx context.Context, id int64) (domain.User, error) {
 	user := domain.User{}

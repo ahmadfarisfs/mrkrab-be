@@ -1,3 +1,3 @@
-module gitlab.com/ahmadfarisfs/mrkrab-be
+module mrkrab-be
 
 go 1.14
