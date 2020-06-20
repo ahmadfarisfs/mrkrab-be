@@ -2,6 +2,7 @@
 vendor/
 article_clean
 _*
+*.exe
 *.test
 .DS_Store
 engine
