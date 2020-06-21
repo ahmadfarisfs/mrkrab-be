@@ -2,19 +2,21 @@ package domain
 
 import (
 	"context"
+
+	"gorm.io/gorm"
 	//"github.com/jinzhu/gorm"
 )
 
 // Project ...
 type Project struct {
-	BaseModel
+	gorm.Model
 	Name        string          `gorm:"not null" json:"name" validate:"required"`
 	ProjectType string          `gorm:"not null;type:enum('onetime','business_unit')" json:"project_type"`
 	Status      string          `gorm:"not null;type:enum('offering','ongoing','close')" json:"status"`
 	PICID       int             `json:"pic_id"`
-	PIC         User            `gorm:"foreignkey:PICID"`
-	Budgets     []ProjectBudget `gorm:"foreignkey:ProjectID"`
-	Members     []User          `gorm:"many2many:user_projects;"`
+	PIC         User            `json:"-" gorm:"foreignkey:PICID"`
+	Budgets     []ProjectBudget `json:"-" gorm:"foreignkey:ProjectID"`
+	Members     []User          `json:"-" gorm:"many2many:user_projects;"`
 }
 
 // ProjectBudget define budget foreach cateory on a project

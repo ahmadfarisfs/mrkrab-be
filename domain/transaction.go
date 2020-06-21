@@ -2,12 +2,14 @@ package domain
 
 import (
 	"context"
+
+	"gorm.io/gorm"
 	//"github.com/jinzhu/gorm"
 )
 
 // Transaction ...
 type Transaction struct {
-	BaseModel
+	gorm.Model
 
 	Project   Project `gorm:"foreignkey:ProjectID" json:"-"`
 	ProjectID int     `gorm:"not null" json:"project_id"`

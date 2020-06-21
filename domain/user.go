@@ -2,11 +2,13 @@ package domain
 
 import (
 	"context"
+
+	"gorm.io/gorm"
 )
 
 // User ...
 type User struct {
-	BaseModel
+	gorm.Model
 	FirstName string    `gorm:"not null" json:"firstname" validate:"required"`
 	LastName  string    `gorm:"not null" json:"lastname" validate:"required"`
 	Email     string    `gorm:"not null;unique" json:"email" validate:"required,email"`
@@ -14,7 +16,7 @@ type User struct {
 	Photo     string    `json:"photo"`
 	Role      string    `gorm:"not null;type:enum('sa','pic','member')" json:"role"`
 	Password  string    `gorm:"not null" json:"-"`
-	Projects  []Project `gorm:"many2many:user_projects;foreignkey:id;references:id;"`
+	Projects  []Project `json:"projects" gorm:"many2many:user_projects;foreignkey:id;references:id;"`
 }
 
 // Belongs To: `ForeignKey` specifies foreign key field owned by the current model, `References` specifies the association's primary key

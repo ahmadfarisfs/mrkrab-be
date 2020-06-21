@@ -1,21 +1,20 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"net/url"
 	"time"
 
+	userHandler "github.com/ahmadfarisfs/mrkrab-be/user/delivery/http"
+	userRepo "github.com/ahmadfarisfs/mrkrab-be/user/repository/mysql"
+	userUsecase "github.com/ahmadfarisfs/mrkrab-be/user/usecase"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
 	"github.com/spf13/viper"
-
-	_articleHttpDelivery "github.com/ahmadfarisfs/mrkrab-be/article/delivery/http"
-	_articleHttpDeliveryMiddleware "github.com/ahmadfarisfs/mrkrab-be/article/delivery/http/middleware"
-	_articleRepo "github.com/ahmadfarisfs/mrkrab-be/article/repository/mysql"
-	_articleUcase "github.com/ahmadfarisfs/mrkrab-be/article/usecase"
-	_authorRepo "github.com/ahmadfarisfs/mrkrab-be/author/repository/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func init() {
@@ -41,33 +40,26 @@ func main() {
 	val.Add("parseTime", "1")
 	val.Add("loc", "Asia/Jakarta")
 	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
-	dbConn, err := sql.Open(`mysql`, dsn)
+	dbConn, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = dbConn.Ping()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer func() {
-		err := dbConn.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
+	log.Println("here")
+	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 
 	e := echo.New()
-	middL := _articleHttpDeliveryMiddleware.InitMiddleware()
-	e.Use(middL.CORS)
+	//	middL := _articleHttpDeliveryMiddleware.InitMiddleware()
+	//	e.Use(middL.CORS)
 
-	authorRepo := _authorRepo.NewMysqlAuthorRepository(dbConn)
-	ar := _articleRepo.NewMysqlArticleRepository(dbConn)
+	//repo init
+	userRP := userRepo.NewUserRepo(dbConn)
 
-	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
-	au := _articleUcase.NewArticleUsecase(ar, authorRepo, timeoutContext)
-	_articleHttpDelivery.NewArticleHandler(e, au)
+	//usecase init
+	userUC := userUsecase.NewUserUsecase(userRP, nil, timeoutContext)
+
+	//handler init
+	userHandler.NewUserHandler(e, userUC)
 
 	log.Fatal(e.Start(viper.GetString("server.address")))
 }
