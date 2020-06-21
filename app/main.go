@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/ahmadfarisfs/mrkrab-be/middleware"
 	userHandler "github.com/ahmadfarisfs/mrkrab-be/user/delivery/http"
 	userRepo "github.com/ahmadfarisfs/mrkrab-be/user/repository/mysql"
 	userUsecase "github.com/ahmadfarisfs/mrkrab-be/user/usecase"
@@ -49,8 +50,8 @@ func main() {
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 
 	e := echo.New()
-	//	middL := _articleHttpDeliveryMiddleware.InitMiddleware()
-	//	e.Use(middL.CORS)
+	middL := middleware.InitMiddleware()
+	e.Use(middL.CORS)
 
 	//repo init
 	userRP := userRepo.NewUserRepo(dbConn)
