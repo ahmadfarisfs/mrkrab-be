@@ -2,8 +2,10 @@ package mysql
 
 import (
 	"context"
+	"log"
 
 	"github.com/ahmadfarisfs/mrkrab-be/domain"
+	"github.com/ahmadfarisfs/mrkrab-be/utilities"
 
 	"gorm.io/gorm"
 	//	"github.com/jinzhu/gorm"
@@ -20,17 +22,18 @@ func NewUserRepo(db *gorm.DB) domain.UserRepository {
 	}
 }
 
-func (r *mysqlUserRepo) Fetch(ctx context.Context, limitPerPage int64, page int64) (res []domain.User, err error) {
+func (r *mysqlUserRepo) Fetch(ctx context.Context, limitPerPage int64, page int64) (res []domain.User, totalRecord int, totalPage int, err error) {
 	users := []domain.User{}
-	err = r.DB.Find(&users).Error
+	//query := r.DB.Find(&users)
 
-	/*utilities.Paging(ctx, &utilities.Param{
-		DB:      query,
+	pagingInfo := utilities.Paging(ctx, &utilities.Param{
+		DB:      r.DB.Model(&domain.User{}), //.Where("id > ?", 0),
 		Page:    int(page),
 		Limit:   int(limitPerPage),
 		OrderBy: []string{"id desc"},
 	}, &users)
-	*/return users, err
+	log.Println(users)
+	return users, pagingInfo.TotalRecord, pagingInfo.TotalPage, err
 }
 func (r *mysqlUserRepo) GetByID(ctx context.Context, id int64) (domain.User, error) {
 	user := domain.User{}

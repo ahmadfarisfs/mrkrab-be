@@ -21,7 +21,7 @@ func NewUserUsecase(a domain.UserRepository, p domain.ProjectRepository, timeout
 	}
 }
 
-func (u *userUseCase) Fetch(ctx context.Context, limitPerPage int64, page int64) ([]domain.User, error) {
+func (u *userUseCase) Fetch(ctx context.Context, limitPerPage int64, page int64) (users []domain.User, totalRecord int, totalPage int, err error) {
 	if limitPerPage == 0 {
 		limitPerPage = 10
 	}

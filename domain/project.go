@@ -2,19 +2,17 @@ package domain
 
 import (
 	"context"
-
-	"gorm.io/gorm"
 	//"github.com/jinzhu/gorm"
 )
 
 // Project ...
 type Project struct {
-	gorm.Model
+	BaseModel
 	Name        string          `gorm:"not null" json:"name" validate:"required"`
 	ProjectType string          `gorm:"not null;type:enum('onetime','business_unit')" json:"project_type"`
 	Status      string          `gorm:"not null;type:enum('offering','ongoing','close')" json:"status"`
 	PICID       int             `json:"pic_id"`
-	PIC         User            `json:"-" gorm:"foreignkey:PICID"`
+	PIC         User            `json:"pic_details" gorm:"foreignkey:PICID"`
 	Budgets     []ProjectBudget `json:"-" gorm:"foreignkey:ProjectID"`
 	Members     []User          `json:"-" gorm:"many2many:user_projects;"`
 }
@@ -73,12 +71,12 @@ type ProjectUsecase interface {
 
 // ProjectRepository represent the Projects's repository contract -> implemented in db conn
 type ProjectRepository interface {
-	Fetch(ctx context.Context, limitPerPage int64, page int64) (res []Project, err error)
+	Fetch(ctx context.Context, limitPerPage int64, page int64) (res []Project, totalRecord int, totalPage int, err error)
 	GetByID(ctx context.Context, id int64) (Project, error)
 	Update(ctx context.Context, ar *Project) error
 	Store(ctx context.Context, a *Project) error
 	Delete(ctx context.Context, id int64) error
-	IsPICAssigned(ctx context.Context, projectID int64) (bool, error)
+	//IsPICAssigned(ctx context.Context, projectID int64) (bool, error)
 	GetProjectsByUser(ctx context.Context, userID int64) (map[ProjectMemberRole][]Project, error)
 	GetProjectMember(ctx context.Context, projectID int64) (map[ProjectMemberRole][]User, error)
 	AddMember(ctx context.Context, projectID int64, userID int64, role ProjectMemberRole) error

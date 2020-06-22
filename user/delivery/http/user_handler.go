@@ -9,6 +9,7 @@ import (
 	validator "gopkg.in/go-playground/validator.v9"
 
 	"github.com/ahmadfarisfs/mrkrab-be/domain"
+	"github.com/ahmadfarisfs/mrkrab-be/utilities"
 )
 
 // ResponseError represent the reseponse error struct
@@ -41,13 +42,17 @@ func (a *UserHandler) FetchUser(c echo.Context) error {
 
 	ctx := c.Request().Context()
 
-	users, err := a.AUsecase.Fetch(ctx, int64(num), int64(page))
+	users, totalRecord, totalPage, err := a.AUsecase.Fetch(ctx, int64(num), int64(page))
 	if err != nil {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
 
 	//c.Response().Header().Set(`X-Cursor`, nextCursor)
-	return c.JSON(http.StatusOK, users)
+	return c.JSON(http.StatusOK, utilities.Paginator{
+		TotalPage:   totalPage,
+		TotalRecord: totalRecord,
+		Records:     users,
+	})
 }
 
 // GetByID will get User by given id

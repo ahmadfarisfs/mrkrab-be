@@ -2,14 +2,12 @@ package domain
 
 import (
 	"context"
-
-	"gorm.io/gorm"
 	//"github.com/jinzhu/gorm"
 )
 
 // Transaction ...
 type Category struct {
-	gorm.Model
+	BaseModel
 	Name string `gorm:"not null" json:"name" validate:"required"`
 }
 
