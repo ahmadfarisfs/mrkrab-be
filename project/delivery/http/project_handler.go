@@ -18,24 +18,24 @@ type ResponseError struct {
 	Message string `json:"message"`
 }
 
-// UserHandler  represent the httphandler for User
-type UserHandler struct {
-	AUsecase domain.UserUsecase
+// ProjectHandler  represent the httphandler for Project
+type ProjectHandler struct {
+	AUsecase domain.ProjectUsecase
 }
 
-// NewUserHandler will initialize the Users/ resources endpoint
-func NewUserHandler(e *echo.Echo, us domain.UserUsecase) {
-	handler := &UserHandler{
+// NewProjectHandler will initialize the Projects/ resources endpoint
+func NewProjectHandler(e *echo.Echo, us domain.ProjectUsecase) {
+	handler := &ProjectHandler{
 		AUsecase: us,
 	}
-	e.GET("/user", handler.FetchUser)
-	e.POST("/user", handler.Register)
-	e.GET("/user/:id", handler.GetByID)
-	e.DELETE("/user/:id", handler.Delete)
+	e.GET("/project", handler.FetchProject)
+	e.POST("/project", handler.Register)
+	e.GET("/project/:id", handler.GetByID)
+	e.DELETE("/project/:id", handler.Delete)
 }
 
-// FetchUser will fetch the User based on given params
-func (a *UserHandler) FetchUser(c echo.Context) error {
+// FetchProject will fetch the Project based on given params
+func (a *ProjectHandler) FetchProject(c echo.Context) error {
 	numS := c.QueryParam("limit")
 	num, _ := strconv.Atoi(numS)
 	pageS := c.QueryParam("page")
@@ -43,7 +43,7 @@ func (a *UserHandler) FetchUser(c echo.Context) error {
 
 	ctx := c.Request().Context()
 
-	users, totalRecord, totalPage, err := a.AUsecase.Fetch(ctx, int64(num), int64(page))
+	projects, totalRecord, totalPage, err := a.AUsecase.Fetch(ctx, int64(num), int64(page), nil)
 	if err != nil {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -52,12 +52,12 @@ func (a *UserHandler) FetchUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, utilities.Paginator{
 		TotalPage:   totalPage,
 		TotalRecord: totalRecord,
-		Records:     users,
+		Records:     projects,
 	})
 }
 
-// GetByID will get User by given id
-func (a *UserHandler) GetByID(c echo.Context) error {
+// GetByID will get Project by given id
+func (a *ProjectHandler) GetByID(c echo.Context) error {
 	idP, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusNotFound, domain.ErrNotFound.Error())
@@ -74,7 +74,7 @@ func (a *UserHandler) GetByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, art)
 }
 
-func isRequestValid(m *domain.User) (bool, error) {
+func isRequestValid(m *domain.Project) (bool, error) {
 	validate := validator.New()
 	err := validate.Struct(m)
 	if err != nil {
@@ -83,33 +83,33 @@ func isRequestValid(m *domain.User) (bool, error) {
 	return true, nil
 }
 
-// Register will Register the User by given request body
-func (a *UserHandler) Register(c echo.Context) (err error) {
-	var User domain.User
+// Register will Register the Project by given request body
+func (a *ProjectHandler) Register(c echo.Context) (err error) {
+	var Project domain.Project
 
-	err = c.Bind(&User)
+	err = c.Bind(&Project)
 	if err != nil {
 		log.Println(err)
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
 	var ok bool
-	if ok, err = isRequestValid(&User); !ok {
+	if ok, err = isRequestValid(&Project); !ok {
 		log.Println(err)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	ctx := c.Request().Context()
-	err = a.AUsecase.Register(ctx, &User)
+	err = a.AUsecase.Add(ctx, &Project)
 	if err != nil {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
-	log.Println(User)
-	return c.JSON(http.StatusCreated, User)
+	log.Println(Project)
+	return c.JSON(http.StatusCreated, Project)
 }
 
-// Delete will delete User by given param
-func (a *UserHandler) Delete(c echo.Context) error {
+// Delete will delete Project by given param
+func (a *ProjectHandler) Delete(c echo.Context) error {
 	idP, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusNotFound, domain.ErrNotFound.Error())

@@ -55,13 +55,13 @@ func (d ProjectMemberRole) String() string {
 
 // ProjectUsecase represent the Project's usecases (business process)
 type ProjectUsecase interface {
-	Fetch(ctx context.Context, limitPerPage int64, page int64, filter map[string]string) ([]Project, error)
+	Fetch(ctx context.Context, limitPerPage int64, page int64, filter map[string]string) (res []Project, totalRecord int, totalPage int, err error)
 	GetByID(ctx context.Context, id int64) (Project, error)
 	Update(ctx context.Context, Project *Project) error
 	Delete(ctx context.Context, id int64) error
 	Add(context.Context, *Project) error
 
-	GetProjectMember(ctx context.Context, projectID int64) ([]User, error)
+	GetProjectMember(ctx context.Context, projectID int64) (map[ProjectMemberRole][]User, error)
 	AssignPIC(ctx context.Context, projectID int64, userID int64) error
 	AssignMember(ctx context.Context, projectID int64, userID int64) error
 	RemoveMember(ctx context.Context, projectID int64, userID int64) error

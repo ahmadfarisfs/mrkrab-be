@@ -32,10 +32,8 @@ func (r *mysqlProjectRepo) GetProjectMember(ctx context.Context, projectID int64
 
 func (r *mysqlProjectRepo) Fetch(ctx context.Context, limitPerPage int64, page int64) (res []domain.Project, totalRecord int, totalPage int, err error) {
 	users := []domain.Project{}
-	//query := r.DB.Find(&users)
-
 	pagingInfo := utilities.Paging(ctx, &utilities.Param{
-		DB:      r.DB.Model(&domain.User{}), //.Where("id > ?", 0),
+		DB:      r.DB.Model(&domain.User{}),
 		Page:    int(page),
 		Limit:   int(limitPerPage),
 		OrderBy: []string{"id desc"},
