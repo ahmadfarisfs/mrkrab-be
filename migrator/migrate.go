@@ -60,8 +60,8 @@ func main() {
 	dbConn.Migrator().DropTable("user_projects")
 
 	err = dbConn.Set("gorm:table_options", "ENGINE=InnoDB").
-		AutoMigrate(&domain.Project{},
-			&domain.User{}, &domain.ProjectBudget{}, &domain.Category{},
+		AutoMigrate(&domain.User{}, &domain.Project{}, &domain.Category{},
+			&domain.ProjectBudget{},
 			&domain.Transaction{})
 	if err != nil {
 		panic(err)
