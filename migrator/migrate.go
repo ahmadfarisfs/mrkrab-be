@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/url"
 
 	"github.com/ahmadfarisfs/mrkrab-be/domain"
+	"github.com/ahmadfarisfs/mrkrab-be/utilities"
 
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
@@ -13,7 +15,16 @@ import (
 )
 
 func init() {
-	viper.SetConfigFile(`config.json`)
+
+	localConfigFilename := "config.json"
+	if utilities.FileExists(localConfigFilename) {
+		viper.SetConfigFile(localConfigFilename)
+	} else {
+		secrets := utilities.FetchSecret("silmioti", "projects/633186564272/secrets/MySQL-Config/latest")
+		viper.SetConfigType("json")
+		viper.ReadConfig(bytes.NewBuffer(secrets))
+	}
+
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic(err)
@@ -44,8 +55,8 @@ func main() {
 	dbConn.Migrator().DropTable(&domain.ProjectBudget{})
 	dbConn.Migrator().DropTable(&domain.Category{})
 	dbConn.Migrator().DropTable(&domain.Transaction{})
+	dbConn.Migrator().DropTable("user_projects")
 
-	//dbConn.Migrator().DropTable("user_projects")
 	err = dbConn.Set("gorm:table_options", "ENGINE=InnoDB").
 		AutoMigrate(&domain.Project{},
 			&domain.User{}, &domain.ProjectBudget{}, &domain.Category{},
@@ -74,8 +85,8 @@ func main() {
 		CategoryID: 1,
 		Amount:     10000,
 	})
-	//db.Migrator().CreateConstraint()
 	if err != nil {
 		panic(err)
 	}
+	log.Println("Success!")
 }
