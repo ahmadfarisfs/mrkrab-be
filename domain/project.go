@@ -14,7 +14,7 @@ type Project struct {
 	PICID       *int            `json:"pic_id" gorm:"pic_id;null"`
 	PIC         *User           `json:"pic_details" gorm:"ForeignKey:PICID;References:id"`
 	Budgets     []ProjectBudget `json:"budget" ` //gorm:"foreignkey:ProjectID;references:id"`
-	Members     []User          `json:"member" gorm:"many2many:user_projects;foreignkey:id;references:id;"`
+	Members     []User          `json:"member" gorm:"many2many:project_members;foreignkey:id;references:id;"`
 }
 
 // ProjectBudget define budget foreach cateory on a project

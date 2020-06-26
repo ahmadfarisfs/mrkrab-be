@@ -52,15 +52,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	//	dbConn.Migrator().DropTable(&domain.User{})
-	//	dbConn.Migrator().DropTable(&domain.Project{})
-	//	dbConn.Migrator().DropTable(&domain.ProjectBudget{})
-	//	dbConn.Migrator().DropTable(&domain.Category{})
-	//	dbConn.Migrator().DropTable(&domain.Transaction{})
-	//	dbConn.Migrator().DropTable("user_projects")
+	dbConn.Migrator().DropTable(&domain.User{})
+	dbConn.Migrator().DropTable(&domain.Project{})
+	dbConn.Migrator().DropTable(&domain.ProjectBudget{})
+	dbConn.Migrator().DropTable(&domain.Category{})
+	dbConn.Migrator().DropTable(&domain.Transaction{})
+	dbConn.Migrator().DropTable("user_projects")
+	dbConn.Migrator().DropTable("project_members")
 
 	err = dbConn.Set("gorm:table_options", "ENGINE=InnoDB").
-		AutoMigrate(&domain.User{}, &domain.Project{}, &domain.Category{},
+		AutoMigrate(&domain.Project{}, &domain.User{}, &domain.Category{},
 			&domain.ProjectBudget{},
 			&domain.Transaction{})
 	if err != nil {
