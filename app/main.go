@@ -1,14 +1,18 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/url"
 	"time"
 
 	//"github.com/ahmadfarisfs/mrkrab-be/middleware"
+	//secretmanager "cloud.google.com/go/secretmanager/apiv1"
+	//secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
 	projectHandler "github.com/ahmadfarisfs/mrkrab-be/project/delivery/http"
 	userHandler "github.com/ahmadfarisfs/mrkrab-be/user/delivery/http"
+	"github.com/ahmadfarisfs/mrkrab-be/utilities"
 
 	projectRepo "github.com/ahmadfarisfs/mrkrab-be/project/repository/mysql"
 	projectUsecase "github.com/ahmadfarisfs/mrkrab-be/project/usecase"
@@ -24,7 +28,16 @@ import (
 )
 
 func init() {
-	viper.SetConfigFile(`config.json`)
+
+	localConfigFilename := "config.json"
+	if utilities.FileExists(localConfigFilename) {
+		viper.SetConfigFile(localConfigFilename)
+	} else {
+		secrets := utilities.FetchSecret("silmioti", "projects/633186564272/secrets/MySQL-Config/latest")
+		viper.SetConfigType("json")
+		viper.ReadConfig(bytes.NewBuffer(secrets))
+	}
+
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic(err)
@@ -54,7 +67,6 @@ func main() {
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 
 	e := echo.New()
-	//	middL := middleware.InitMiddleware()
 	e.Use(middleware.CORS())
 
 	//repo init

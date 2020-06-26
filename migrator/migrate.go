@@ -35,21 +35,45 @@ func main() {
 	val.Add("parseTime", "1")
 	val.Add("loc", "Asia/Jakarta")
 	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	dbConn, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
-	db.Migrator().DropTable(&domain.User{})
-	db.Migrator().DropTable(&domain.Project{})
-	db.Migrator().DropTable(&domain.ProjectBudget{})
-	db.Migrator().DropTable(&domain.Category{})
-	db.Migrator().DropTable(&domain.Transaction{})
+	dbConn.Migrator().DropTable(&domain.User{})
+	dbConn.Migrator().DropTable(&domain.Project{})
+	dbConn.Migrator().DropTable(&domain.ProjectBudget{})
+	dbConn.Migrator().DropTable(&domain.Category{})
+	dbConn.Migrator().DropTable(&domain.Transaction{})
 
-	//db.Migrator().DropTable("user_projects")
-	err = db.Set("gorm:table_options", "ENGINE=InnoDB").
+	//dbConn.Migrator().DropTable("user_projects")
+	err = dbConn.Set("gorm:table_options", "ENGINE=InnoDB").
 		AutoMigrate(&domain.Project{},
 			&domain.User{}, &domain.ProjectBudget{}, &domain.Category{},
 			&domain.Transaction{})
+
+	dbConn.Create(&domain.User{
+		Email:     "aku@komo.com",
+		FirstName: "aku",
+		LastName:  "komo",
+		Phone:     "0855",
+		Role:      "sa",
+	})
+
+	picid := 1
+	dbConn.Create(&domain.Project{
+		Name:        "proyeku",
+		ProjectType: "onetime",
+		Status:      "ongoing",
+		PICID:       &picid,
+	})
+	dbConn.Create(&domain.Category{
+		Name: "Makanan",
+	})
+	dbConn.Create(&domain.ProjectBudget{
+		ProjectID:  1,
+		CategoryID: 1,
+		Amount:     10000,
+	})
 	//db.Migrator().CreateConstraint()
 	if err != nil {
 		panic(err)

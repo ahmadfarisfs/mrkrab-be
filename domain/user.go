@@ -12,9 +12,9 @@ type User struct {
 	LastName  string    `gorm:"not null" json:"lastname" validate:"required"`
 	Email     string    `gorm:"not null;unique" json:"email" validate:"required,email"`
 	Phone     string    `gorm:"not null;unique" json:"phone" validate:"required"`
-	Photo     string    `json:"photo"`
+	Photo     *string   `json:"photo"`
 	Role      string    `gorm:"not null;type:enum('sa','pic','member','secretary')" json:"role" validate:"required"`
-	Password  string    `gorm:"not null" json:"password" validate:"required"`
+	Password  string    `gorm:"not null" json:"-" validate:"required"`
 	Projects  []Project `json:"projects" gorm:"many2many:user_projects;foreignkey:id;references:id;"`
 }
 

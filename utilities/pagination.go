@@ -35,7 +35,7 @@ func CalculatePage(limit int, totalRecord int) int {
 
 // Paging 分页
 func Paging(ctx context.Context, p *Param, result interface{}) *Paginator {
-	db := p.DB.WithContext(ctx)
+	db := p.DB.WithContext(ctx).Session(&gorm.Session{WithConditions: true})
 
 	//	if p.ShowSQL {
 	db = db.Debug()
@@ -55,7 +55,7 @@ func Paging(ctx context.Context, p *Param, result interface{}) *Paginator {
 	//	db.SkipDefaultTransaction = true
 	//  db = db.Order("id DESC")
 	//  go countRecords(db, result, done, &count)
-	db.Model(result).Count(&count)
+	db.Count(&count)
 
 	if p.Page == 1 {
 		offset = 0
@@ -68,7 +68,8 @@ func Paging(ctx context.Context, p *Param, result interface{}) *Paginator {
 			db = db.Order(o)
 		}
 	}
-	db.Limit(p.Limit).Offset(offset).Find(result)
+	query := db.Offset(offset).Limit(p.Limit)
+	query.Find(result)
 
 	paginator.TotalRecord = int(count)
 	paginator.Records = result
@@ -80,6 +81,8 @@ func Paging(ctx context.Context, p *Param, result interface{}) *Paginator {
 	paginator.TotalPage = CalculatePage(p.Limit, int(count))
 	log.Println("len res")
 	log.Println(paginator.TotalPage)
+	log.Println(paginator.TotalRecord)
+	log.Println(result)
 
 	/*	if p.Page > 1 {
 			paginator.PrevPage = p.Page - 1

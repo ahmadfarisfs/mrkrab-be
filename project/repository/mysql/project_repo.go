@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"context"
-	"log"
 
 	"github.com/ahmadfarisfs/mrkrab-be/domain"
 	"github.com/ahmadfarisfs/mrkrab-be/utilities"
@@ -31,21 +30,22 @@ func (r *mysqlProjectRepo) GetProjectMember(ctx context.Context, projectID int64
 }
 
 func (r *mysqlProjectRepo) Fetch(ctx context.Context, limitPerPage int64, page int64) (res []domain.Project, totalRecord int, totalPage int, err error) {
-	users := []domain.Project{}
+	projects := []domain.Project{}
+
 	pagingInfo := utilities.Paging(ctx, &utilities.Param{
-		DB:      r.DB.Model(&domain.User{}),
+		DB:      r.DB.Joins("PIC").Model(&domain.Project{}), //.Preload("Users"),
 		Page:    int(page),
 		Limit:   int(limitPerPage),
 		OrderBy: []string{"id desc"},
-	}, &users)
-	log.Println(users)
-	return users, pagingInfo.TotalRecord, pagingInfo.TotalPage, err
+	}, &projects)
+
+	return projects, pagingInfo.TotalRecord, pagingInfo.TotalPage, err
 }
 
 func (r *mysqlProjectRepo) GetByID(ctx context.Context, id int64) (domain.Project, error) {
-	user := domain.Project{}
-	err := r.DB.Where("id = ?", id).First(&user).Error
-	return user, err
+	project := domain.Project{}
+	err := r.DB.Preload("Budgets").Preload("Members").Joins("PIC").Where("projects.id = ?", id).First(&project).Error
+	return project, err
 }
 
 func (r *mysqlProjectRepo) GetByRole(ctx context.Context, role string) ([]domain.Project, error) {

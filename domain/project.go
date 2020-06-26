@@ -11,17 +11,17 @@ type Project struct {
 	Name        string          `gorm:"not null" json:"name" validate:"required"`
 	ProjectType string          `gorm:"not null;type:enum('onetime','business_unit')" json:"project_type"`
 	Status      string          `gorm:"not null;type:enum('offering','ongoing','close')" json:"status"`
-	PICID       int             `json:"pic_id"`
-	PIC         User            `json:"pic_details" gorm:"foreignkey:PICID"`
-	Budgets     []ProjectBudget `json:"-" gorm:"foreignkey:ProjectID"`
-	Members     []User          `json:"-" gorm:"many2many:user_projects;"`
+	PICID       *int            `json:"pic_id" gorm:"pic_id;null"`
+	PIC         *User           `json:"pic_details" gorm:"ForeignKey:PICID;References:id"`
+	Budgets     []ProjectBudget `json:"budget" ` //gorm:"foreignkey:ProjectID;references:id"`
+	Members     []User          `json:"member" gorm:"many2many:user_projects;foreignkey:id;references:id;"`
 }
 
 // ProjectBudget define budget foreach cateory on a project
 type ProjectBudget struct {
 	BaseModel
 	ProjectID int     `gorm:"not null" json:"project_id"`
-	Project   Project `gorm:"foreignkey:ProjectID" json:"-"`
+	Project   Project `gorm:"foreignkey:ProjectID;references:id" json:"-"`
 
 	CategoryID int      `gorm:"not null" json:"category_id"`
 	Category   Category `gorm:"foreignkey:CategoryID" json:"-"`
