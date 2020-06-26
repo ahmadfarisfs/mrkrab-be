@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"os"
 	"time"
 
 	//"github.com/ahmadfarisfs/mrkrab-be/middleware"
@@ -28,21 +29,22 @@ import (
 )
 
 func init() {
-
-	localConfigFilename := "config.json"
-	if utilities.FileExists(localConfigFilename) {
-		viper.SetConfigFile(localConfigFilename)
+	var err error
+	if os.Getenv("GAE_APPLICATION") == "" {
+		//run in local
+		log.Println("Found Local File Config")
+		viper.SetConfigFile("config.json")
+		err = viper.ReadInConfig()
 	} else {
-		secrets := utilities.FetchSecret("silmioti", "projects/633186564272/secrets/MySQL-Config/latest")
+		//run in GAE
+		log.Println("Not Found Local File Config, Searching on Google Secret Manager")
+		secrets := utilities.FetchSecret("silmioti", "projects/silmioti/secrets/MySQL-Config/versions/latest")
 		viper.SetConfigType("json")
-		viper.ReadConfig(bytes.NewBuffer(secrets))
+		err = viper.ReadConfig(bytes.NewBuffer(secrets))
 	}
-
-	err := viper.ReadInConfig()
 	if err != nil {
 		panic(err)
 	}
-
 	if viper.GetBool(`debug`) {
 		log.Println("Service RUN on DEBUG mode")
 	}
@@ -57,7 +59,7 @@ func main() {
 	connection := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
 	val := url.Values{}
 	val.Add("parseTime", "1")
-	val.Add("loc", "Asia/Jakarta")
+	val.Add("loc", viper.GetString(`database.loc`))
 	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
 	dbConn, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
@@ -68,6 +70,12 @@ func main() {
 
 	e := echo.New()
 	e.Use(middleware.CORS())
+	e.GET("/", func(c echo.Context) error {
+		return c.JSON(200, "Hello")
+	})
+	e.GET("/health", func(c echo.Context) error {
+		return c.JSON(200, "I am Healthy!")
+	})
 
 	//repo init
 	userRP := userRepo.NewUserRepo(dbConn)

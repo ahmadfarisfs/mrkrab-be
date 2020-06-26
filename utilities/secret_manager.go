@@ -26,6 +26,7 @@ func FetchSecret(projectName string, secretName string) []byte {
 	if err != nil {
 		log.Fatalf("failed to access secret version: %v", err)
 	}
+	log.Println("Success retrieve secret")
 	return result.Payload.Data
 }
 
