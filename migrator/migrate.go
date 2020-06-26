@@ -18,8 +18,10 @@ func init() {
 
 	localConfigFilename := "config.json"
 	if utilities.FileExists(localConfigFilename) {
+		log.Println("Found Local Config!")
 		viper.SetConfigFile(localConfigFilename)
 	} else {
+		log.Println("Not Found Local Config, finding on google secret manager!")
 		secrets := utilities.FetchSecret("silmioti", "projects/633186564272/secrets/MySQL-Config/latest")
 		viper.SetConfigType("json")
 		viper.ReadConfig(bytes.NewBuffer(secrets))
@@ -61,7 +63,9 @@ func main() {
 		AutoMigrate(&domain.Project{},
 			&domain.User{}, &domain.ProjectBudget{}, &domain.Category{},
 			&domain.Transaction{})
-
+	if err != nil {
+		panic(err)
+	}
 	dbConn.Create(&domain.User{
 		Email:     "aku@komo.com",
 		FirstName: "aku",
