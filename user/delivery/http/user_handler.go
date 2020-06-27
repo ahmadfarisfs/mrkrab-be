@@ -4,7 +4,9 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
 	validator "gopkg.in/go-playground/validator.v9"
@@ -28,10 +30,48 @@ func NewUserHandler(e *echo.Echo, us domain.UserUsecase) {
 	handler := &UserHandler{
 		AUsecase: us,
 	}
+	e.POST("/user/login", handler.Login)
 	e.GET("/user", handler.FetchUser)
 	e.POST("/user", handler.Register)
 	e.GET("/user/:id", handler.GetByID)
 	e.DELETE("/user/:id", handler.Delete)
+}
+func (a *UserHandler) Login(c echo.Context) error {
+	ctx := c.Request().Context()
+	loginPayload := struct {
+		Username string `json:"username" validate:"required"`
+		Password string `json:"password" validate:"required"`
+	}{}
+	err := c.Bind(&loginPayload)
+	if err != nil {
+		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+	user, err := a.AUsecase.Login(ctx, loginPayload.Username, loginPayload.Password)
+	if err != nil {
+		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+	// Create token
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	// Set claims
+	claims := token.Claims.(jwt.MapClaims)
+	claims["username"] = loginPayload.Username
+	claims["role"] = user.Role
+	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+	// Generate encoded token and send it as response.
+	t, err := token.SignedString([]byte("mysecretsalt768"))
+	if err != nil {
+		return err
+	}
+	retVal := struct {
+		domain.User
+		Token string `json:"token"`
+	}{
+		User:  user,
+		Token: t,
+	}
+	return c.JSON(http.StatusOK, retVal)
 }
 
 // FetchUser will fetch the User based on given params

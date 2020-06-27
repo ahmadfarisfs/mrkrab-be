@@ -21,16 +21,18 @@ func NewUserRepo(db *gorm.DB) domain.UserRepository {
 		DB: db,
 	}
 }
-
+func (r *mysqlUserRepo) GetByUsername(ctx context.Context, username string) (domain.User, error) {
+	user := domain.User{}
+	err := r.DB.Where("username = ?", username).
+		First(&user).Error
+	return user, err
+}
 func (r *mysqlUserRepo) Fetch(ctx context.Context, limitPerPage int64, page int64) (res []domain.User, totalRecord int, totalPage int, err error) {
 	users := []domain.User{}
-	//query := r.DB.Find(&users)
-
 	pagingInfo := utilities.Paging(ctx, &utilities.Param{
-		DB:      r.DB.Model(&domain.User{}), //.Where("id > ?", 0),
-		Page:    int(page),
+		DB:      r.DB.Model(&domain.User{}),
 		Limit:   int(limitPerPage),
-		OrderBy: []string{"id desc"},
+		OrderBy: []string{"id asc"},
 	}, &users)
 	log.Println(users)
 	return users, pagingInfo.TotalRecord, pagingInfo.TotalPage, err

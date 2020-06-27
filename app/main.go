@@ -34,6 +34,11 @@ func init() {
 		//run in local
 		log.Println("Found Local File Config")
 		viper.SetConfigFile("config.json")
+		port := os.Getenv("PORT")
+		if port == "" {
+			port = "8080"
+			log.Printf("Defaulting to port %s", port)
+		}
 		err = viper.ReadInConfig()
 	} else {
 		//run in GAE
@@ -42,6 +47,7 @@ func init() {
 		viper.SetConfigType("json")
 		err = viper.ReadConfig(bytes.NewBuffer(secrets))
 	}
+
 	if err != nil {
 		panic(err)
 	}
@@ -69,6 +75,8 @@ func main() {
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 
 	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 	e.GET("/", func(c echo.Context) error {
 		return c.JSON(200, "Hello")

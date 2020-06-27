@@ -30,7 +30,7 @@ func NewProjectHandler(e *echo.Echo, us domain.ProjectUsecase) {
 	}
 	e.GET("/project", handler.FetchProject)
 	e.POST("/project", handler.Register)
-	e.GET("/project/:id", handler.GetByID)
+	e.GET("/project/{id:[0-9]+}", handler.GetByID)
 	e.DELETE("/project/:id", handler.Delete)
 }
 

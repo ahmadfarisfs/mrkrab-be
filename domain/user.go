@@ -8,13 +8,14 @@ import (
 type User struct {
 	//gorm.Model
 	BaseModel
+	Username  string  `gorm:"not null;unique" json:"username" validate:"required"`
 	FirstName string  `gorm:"not null" json:"firstname" validate:"required"`
 	LastName  string  `gorm:"not null" json:"lastname" validate:"required"`
 	Email     string  `gorm:"not null;unique" json:"email" validate:"required,email"`
 	Phone     string  `gorm:"not null;unique" json:"phone" validate:"required"`
 	Photo     *string `json:"photo"`
 	Role      string  `gorm:"not null;type:enum('sa','pic','member','secretary')" json:"role" validate:"required"`
-	Password  string  `gorm:"not null" json:"-" validate:"required"`
+	Password  string  `gorm:"not null" json:"password" validate:"required"`
 	//	Projects  []Project `json:"projects" gorm:"many2many:user_projects;foreignkey:id;references:id;"`
 }
 
@@ -26,6 +27,7 @@ type User struct {
 
 // UserUsecase represent the user's usecases (business process)
 type UserUsecase interface {
+	Login(ctx context.Context, userName string, password string) (User, error)
 	Fetch(ctx context.Context, limitPerPage int64, page int64) (users []User, totalRecord int, totalPage int, err error)
 	GetByID(ctx context.Context, id int64) (User, error)
 	GetByRole(ctx context.Context, role string) ([]User, error)
@@ -37,6 +39,7 @@ type UserUsecase interface {
 
 // UserRepository represent the users's repository contract -> implemented in db conn
 type UserRepository interface {
+	GetByUsername(ctx context.Context, username string) (User, error)
 	Fetch(ctx context.Context, limitPerPage int64, page int64) (res []User, totalRecord int, totalPage int, err error)
 	GetByID(ctx context.Context, id int64) (User, error)
 	GetByRole(ctx context.Context, role string) ([]User, error)
