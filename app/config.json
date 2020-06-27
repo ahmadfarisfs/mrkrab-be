@@ -13,5 +13,8 @@
     "pass": "root",
     "name": "mrkrab_be",
     "loc": "Asia/Jakarta"
+  },
+  "jwt":{
+    "secret":"pjpofjaspofaspifbfpsifboafugwou"
   }
 }

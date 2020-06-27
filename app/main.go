@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	//"github.com/ahmadfarisfs/mrkrab-be/middleware"
@@ -78,6 +79,17 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
+	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+		SigningKey: []byte(viper.GetString(`jwt.secret`)),
+		Skipper: func(c echo.Context) bool {
+			path := c.Request().URL.RequestURI()
+			log.Println(path)
+			if strings.Contains(path, "login") {
+				return true
+			}
+			return false
+		},
+	}))
 	e.GET("/", func(c echo.Context) error {
 		return c.JSON(200, "Hello")
 	})

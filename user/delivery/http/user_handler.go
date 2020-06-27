@@ -9,6 +9,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	validator "gopkg.in/go-playground/validator.v9"
 
 	"github.com/ahmadfarisfs/mrkrab-be/domain"
@@ -60,7 +61,7 @@ func (a *UserHandler) Login(c echo.Context) error {
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
 	// Generate encoded token and send it as response.
-	t, err := token.SignedString([]byte("mysecretsalt768"))
+	t, err := token.SignedString([]byte(viper.GetString(`jwt.secret`)))
 	if err != nil {
 		return err
 	}
