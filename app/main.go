@@ -83,8 +83,8 @@ func main() {
 		SigningKey: []byte(viper.GetString(`jwt.secret`)),
 		Skipper: func(c echo.Context) bool {
 			path := c.Request().URL.RequestURI()
-			log.Println(path)
-			if strings.Contains(path, "login") {
+			hostname := c.Request().URL.Hostname()
+			if strings.Contains(path, "login") || strings.Contains(hostname, "localhost") {
 				return true
 			}
 			return false
