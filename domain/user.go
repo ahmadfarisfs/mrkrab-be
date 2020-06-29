@@ -42,6 +42,7 @@ type UserRepository interface {
 	GetByUsername(ctx context.Context, username string) (User, error)
 	Fetch(ctx context.Context, limitPerPage int64, page int64) (res []User, totalRecord int, totalPage int, err error)
 	GetByID(ctx context.Context, id int64) (User, error)
+	GetByIDs(ctx context.Context, id []int64) ([]User, error)
 	GetByRole(ctx context.Context, role string) ([]User, error)
 	Update(ctx context.Context, ar *User) error
 	Store(ctx context.Context, a *User) error

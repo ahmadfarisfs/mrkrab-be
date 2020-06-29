@@ -21,6 +21,7 @@ type ResponseError struct {
 // ProjectHandler  represent the httphandler for Project
 type ProjectHandler struct {
 	AUsecase domain.ProjectUsecase
+	//	UserUsecase domain.UserUsecase
 }
 
 // NewProjectHandler will initialize the Projects/ resources endpoint
@@ -29,9 +30,51 @@ func NewProjectHandler(e *echo.Echo, us domain.ProjectUsecase) {
 		AUsecase: us,
 	}
 	e.GET("/project", handler.FetchProject)
-	e.POST("/project", handler.Register)
-	e.GET("/project/{id:[0-9]+}", handler.GetByID)
+	e.POST("/project", handler.Add)
+	e.POST("/project/member/add", handler.AddMember)
+	e.DELETE("/project/member/remove", handler.RemoveMember)
+	e.GET("/project/:id", handler.GetByID)
 	e.DELETE("/project/:id", handler.Delete)
+
+}
+func (a *ProjectHandler) RemoveMember(c echo.Context) error {
+	request := struct {
+		ProjectID int64 `json:"project_id" validate:"required"`
+		MemberID  int64 `json:"member_id" validate:"required"`
+	}{}
+	err := c.Bind(&request)
+	if err != nil {
+		log.Println(err)
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+	if ok, err := isRequestValid(&request); !ok {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	err = a.AUsecase.RemoveMember(c.Request().Context(), request.ProjectID, request.MemberID)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error)
+	}
+	return c.JSON(http.StatusOK, nil)
+}
+func (a *ProjectHandler) AddMember(c echo.Context) error {
+	request := struct {
+		ProjectID int64   `json:"project_id" validate:"required"`
+		MemberIDs []int64 `json:"member_ids"`
+	}{}
+	err := c.Bind(&request)
+	if err != nil {
+		log.Println(err)
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+	if ok, err := isRequestValid(&request); !ok {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	err = a.AUsecase.AssignMember(c.Request().Context(), request.ProjectID, request.MemberIDs)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error)
+	}
+	return c.JSON(http.StatusOK, nil)
 }
 
 // FetchProject will fetch the Project based on given params
@@ -48,7 +91,6 @@ func (a *ProjectHandler) FetchProject(c echo.Context) error {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
 
-	//c.Response().Header().Set(`X-Cursor`, nextCursor)
 	return c.JSON(http.StatusOK, utilities.Paginator{
 		TotalPage:   totalPage,
 		TotalRecord: totalRecord,
@@ -70,11 +112,10 @@ func (a *ProjectHandler) GetByID(c echo.Context) error {
 	if err != nil {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
-
 	return c.JSON(http.StatusOK, art)
 }
 
-func isRequestValid(m *domain.Project) (bool, error) {
+func isRequestValid(m interface{}) (bool, error) {
 	validate := validator.New()
 	err := validate.Struct(m)
 	if err != nil {
@@ -83,8 +124,8 @@ func isRequestValid(m *domain.Project) (bool, error) {
 	return true, nil
 }
 
-// Register will Register the Project by given request body
-func (a *ProjectHandler) Register(c echo.Context) (err error) {
+// Add will Add the Project by given request body
+func (a *ProjectHandler) Add(c echo.Context) (err error) {
 	var Project domain.Project
 
 	err = c.Bind(&Project)
@@ -93,9 +134,7 @@ func (a *ProjectHandler) Register(c echo.Context) (err error) {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	var ok bool
-	if ok, err = isRequestValid(&Project); !ok {
-		log.Println(err)
+	if ok, err := isRequestValid(&Project); !ok {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 

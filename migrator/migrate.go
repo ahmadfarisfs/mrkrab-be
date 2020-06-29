@@ -75,7 +75,7 @@ func main() {
 		Role:      "sa",
 	})
 
-	picid := 1
+	picid := int64(1)
 	dbConn.Create(&domain.Project{
 		Name:        "proyeku",
 		ProjectType: "onetime",

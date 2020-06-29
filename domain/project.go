@@ -11,7 +11,7 @@ type Project struct {
 	Name        string          `gorm:"not null" json:"name" validate:"required"`
 	ProjectType string          `gorm:"not null;type:enum('onetime','business_unit')" json:"project_type"`
 	Status      string          `gorm:"not null;type:enum('offering','ongoing','close')" json:"status"`
-	PICID       *int            `json:"pic_id" gorm:"pic_id;null"`
+	PICID       *int64          `json:"pic_id" gorm:"pic_id;null" validate:"required"`
 	PIC         *User           `json:"pic_details" gorm:"ForeignKey:PICID;References:id"`
 	Budgets     []ProjectBudget `json:"budget" ` //gorm:"foreignkey:ProjectID;references:id"`
 	Members     []User          `json:"member" gorm:"many2many:project_members;foreignkey:id;references:id;"`
@@ -61,9 +61,9 @@ type ProjectUsecase interface {
 	Delete(ctx context.Context, id int64) error
 	Add(context.Context, *Project) error
 
-	GetProjectMember(ctx context.Context, projectID int64) (map[ProjectMemberRole][]User, error)
+	GetProjectMember(ctx context.Context, projectID int64) ([]User, error)
 	AssignPIC(ctx context.Context, projectID int64, userID int64) error
-	AssignMember(ctx context.Context, projectID int64, userID int64) error
+	AssignMember(ctx context.Context, projectID int64, userID []int64) error
 	RemoveMember(ctx context.Context, projectID int64, userID int64) error
 
 	SetStatus(ctx context.Context, projectID int64, status ProjectStatus) error
@@ -78,7 +78,7 @@ type ProjectRepository interface {
 	Delete(ctx context.Context, id int64) error
 	//IsPICAssigned(ctx context.Context, projectID int64) (bool, error)
 	GetProjectsByUser(ctx context.Context, userID int64) (map[ProjectMemberRole][]Project, error)
-	GetProjectMember(ctx context.Context, projectID int64) (map[ProjectMemberRole][]User, error)
-	AddMember(ctx context.Context, projectID int64, userID int64, role ProjectMemberRole) error
-	RemoveMember(ctx context.Context, projectID int64, userID int64) error
+	GetProjectMember(ctx context.Context, project Project) ([]User, error)
+	AddMember(ctx context.Context, project Project, users []User) error
+	RemoveMember(ctx context.Context, project Project, userID User) error
 }

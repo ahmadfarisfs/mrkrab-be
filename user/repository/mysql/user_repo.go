@@ -42,6 +42,13 @@ func (r *mysqlUserRepo) GetByID(ctx context.Context, id int64) (domain.User, err
 	err := r.DB.Where("id = ?", id).First(&user).Error
 	return user, err
 }
+
+func (r *mysqlUserRepo) GetByIDs(ctx context.Context, id []int64) ([]domain.User, error) {
+	user := []domain.User{}
+	err := r.DB.Where("id IN (?)", id).Find(&user).Error
+	return user, err
+}
+
 func (r *mysqlUserRepo) GetByRole(ctx context.Context, role string) ([]domain.User, error) {
 	user := []domain.User{}
 	err := r.DB.Where("role = ?", role).Find(&user).Error

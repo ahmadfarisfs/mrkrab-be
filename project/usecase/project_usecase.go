@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/ahmadfarisfs/mrkrab-be/domain"
@@ -11,14 +12,15 @@ import (
 type projectUseCase struct {
 	//	DB          *gorm.DB
 	projectRepo domain.ProjectRepository
+	userRepo    domain.UserRepository
 	timeout     time.Duration
 }
 
-func NewProjectUseCase(p domain.ProjectRepository, timeout time.Duration) domain.ProjectUsecase {
+func NewProjectUseCase(p domain.ProjectRepository, u domain.UserRepository, timeout time.Duration) domain.ProjectUsecase {
 	return &projectUseCase{
 		projectRepo: p,
-		//	DB:          db,
-		timeout: timeout,
+		userRepo:    u,
+		timeout:     timeout,
 	}
 }
 
@@ -55,17 +57,65 @@ func (p *projectUseCase) Delete(ctx context.Context, id int64) error {
 func (p *projectUseCase) AssignPIC(ctx context.Context, projectID int64, userID int64) error {
 	panic("Note implemented")
 }
-func (p *projectUseCase) GetProjectsByUser(ctx context.Context, userID int64) (map[domain.ProjectMemberRole][]domain.Project, error) {
+func (p *projectUseCase) GetProjectsByUser(ctx context.Context, userID int64) ([]domain.Project, error) {
 	panic("Note implemented")
 }
-func (p *projectUseCase) GetProjectMember(ctx context.Context, projectID int64) (map[domain.ProjectMemberRole][]domain.User, error) {
+func (p *projectUseCase) GetProjectMember(ctx context.Context, projectID int64) ([]domain.User, error) {
 	panic("Note implemented")
+
 }
-func (p *projectUseCase) AssignMember(ctx context.Context, projectID int64, userID int64) error {
-	panic("Note implemented")
+func (p *projectUseCase) AssignMember(ctx context.Context, projectID int64, userID []int64) error {
+	//check project ID
+	project, err := p.GetByID(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	//check project status
+	if project.Status == "close" {
+		return errors.New("Cannot add member to closed project")
+	}
+	//check if member == pic
+	for _, val := range userID {
+		if project.PICID != nil {
+			if *project.PICID == val {
+				return errors.New("One of assigned members is PIC in this project")
+			}
+		}
+	}
+
+	//check user ids
+	users, err := p.userRepo.GetByIDs(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if len(users) != len(userID) {
+		return errors.New("Cannot find one or more member")
+	}
+	//add member
+	err = p.projectRepo.AddMember(ctx, project, users)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 func (p *projectUseCase) RemoveMember(ctx context.Context, projectID int64, userID int64) error {
-	panic("Note implemented")
+	//	panic("Not implemented")
+	//check project ID
+	project, err := p.GetByID(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	//check user ids
+	user, err := p.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	//add member
+	err = p.projectRepo.RemoveMember(ctx, project, user)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (p *projectUseCase) SetStatus(ctx context.Context, projectID int64, status domain.ProjectStatus) error {

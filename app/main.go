@@ -76,14 +76,15 @@ func main() {
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 
 	e := echo.New()
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	//	e.Use(middleware.Logger())
+	//e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: []byte(viper.GetString(`jwt.secret`)),
 		Skipper: func(c echo.Context) bool {
 			path := c.Request().URL.RequestURI()
-			hostname := c.Request().URL.Hostname()
+			hostname := c.Request().Host
+			log.Println(hostname)
 			if strings.Contains(path, "login") || strings.Contains(hostname, "localhost") {
 				return true
 			}
@@ -103,7 +104,7 @@ func main() {
 
 	//usecase init
 	userUC := userUsecase.NewUserUsecase(userRP, nil, timeoutContext)
-	projectUC := projectUsecase.NewProjectUseCase(projectRP, timeoutContext)
+	projectUC := projectUsecase.NewProjectUseCase(projectRP, userRP, timeoutContext)
 
 	//handler init
 	userHandler.NewUserHandler(e, userUC)

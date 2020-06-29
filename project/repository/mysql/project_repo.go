@@ -21,12 +21,18 @@ func NewProjectRepo(db *gorm.DB) domain.ProjectRepository {
 func (r *mysqlProjectRepo) GetProjectsByUser(ctx context.Context, userID int64) (map[domain.ProjectMemberRole][]domain.Project, error) {
 	panic("not imepl")
 }
-func (r *mysqlProjectRepo) RemoveMember(ctx context.Context, projectID int64, userID int64) error {
-	panic("not imepl")
+func (r *mysqlProjectRepo) RemoveMember(ctx context.Context, project domain.Project, user domain.User) error {
+	err := r.DB.Model(&project).Association("Members").Delete(user)
+	return err
 }
 
-func (r *mysqlProjectRepo) GetProjectMember(ctx context.Context, projectID int64) (map[domain.ProjectMemberRole][]domain.User, error) {
-	panic("not imepl")
+func (r *mysqlProjectRepo) GetProjectMember(ctx context.Context, project domain.Project) ([]domain.User, error) {
+	users := []domain.User{}
+	err := r.DB.Model(&project).Association("Role").Find(&users)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }
 
 func (r *mysqlProjectRepo) Fetch(ctx context.Context, limitPerPage int64, page int64) (res []domain.Project, totalRecord int, totalPage int, err error) {
@@ -53,9 +59,10 @@ func (r *mysqlProjectRepo) GetByRole(ctx context.Context, role string) ([]domain
 	err := r.DB.Where("role = ?", role).Find(&user).Error
 	return user, err
 }
-func (r *mysqlProjectRepo) AddMember(ctx context.Context, projectID int64, userID int64, role domain.ProjectMemberRole) error {
-	panic("Not implemented")
-	//return r.DB.Save(ar).Error
+func (r *mysqlProjectRepo) AddMember(ctx context.Context, project domain.Project, users []domain.User) error {
+	project.Members = users
+	err := r.DB.Model(&project).Association("Members").Append(users)
+	return err
 }
 func (r *mysqlProjectRepo) Update(ctx context.Context, ar *domain.Project) error {
 	return r.DB.Save(ar).Error
