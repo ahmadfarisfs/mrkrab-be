@@ -12,12 +12,14 @@ import (
 	//"github.com/ahmadfarisfs/mrkrab-be/middleware"
 	//secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	//secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
+	"github.com/ahmadfarisfs/mrkrab-be/domain"
 	projectHandler "github.com/ahmadfarisfs/mrkrab-be/project/delivery/http"
 	userHandler "github.com/ahmadfarisfs/mrkrab-be/user/delivery/http"
 	"github.com/ahmadfarisfs/mrkrab-be/utilities"
 
 	projectRepo "github.com/ahmadfarisfs/mrkrab-be/project/repository/mysql"
 	projectUsecase "github.com/ahmadfarisfs/mrkrab-be/project/usecase"
+	trxRepo "github.com/ahmadfarisfs/mrkrab-be/transaction/repository/mysql"
 	userRepo "github.com/ahmadfarisfs/mrkrab-be/user/repository/mysql"
 	userUsecase "github.com/ahmadfarisfs/mrkrab-be/user/usecase"
 
@@ -73,6 +75,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	err = dbConn.Set("gorm:table_options", "ENGINE=InnoDB").
+		AutoMigrate(&domain.Project{}, &domain.User{}, &domain.Category{},
+			&domain.ProjectBudget{},
+			&domain.Transaction{})
+	if err != nil {
+		log.Fatal(err)
+	}
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 
 	e := echo.New()
@@ -101,10 +111,11 @@ func main() {
 	//repo init
 	userRP := userRepo.NewUserRepo(dbConn)
 	projectRP := projectRepo.NewProjectRepo(dbConn)
+	transactionRP := trxRepo.NewTransactionRepo(dbConn)
 
 	//usecase init
 	userUC := userUsecase.NewUserUsecase(userRP, nil, timeoutContext)
-	projectUC := projectUsecase.NewProjectUseCase(projectRP, userRP, timeoutContext)
+	projectUC := projectUsecase.NewProjectUseCase(projectRP, userRP, transactionRP, timeoutContext)
 
 	//handler init
 	userHandler.NewUserHandler(e, userUC)

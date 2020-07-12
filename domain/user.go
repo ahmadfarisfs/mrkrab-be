@@ -2,20 +2,22 @@ package domain
 
 import (
 	"context"
+	"time"
 )
 
 // User ...
 type User struct {
 	//gorm.Model
 	BaseModel
-	Username  string  `gorm:"not null;unique" json:"username" validate:"required"`
-	FirstName string  `gorm:"not null" json:"firstname" validate:"required"`
-	LastName  string  `gorm:"not null" json:"lastname" validate:"required"`
-	Email     string  `gorm:"not null;unique" json:"email" validate:"required,email"`
-	Phone     string  `gorm:"not null;unique" json:"phone" validate:"required"`
-	Photo     *string `json:"photo"`
-	Role      string  `gorm:"not null;type:enum('sa','pic','member','secretary')" json:"role" validate:"required"`
-	Password  string  `gorm:"not null" json:"password" validate:"required"`
+	Username  string    `gorm:"not null;unique" json:"username" validate:"required"`
+	FirstName string    `gorm:"not null" json:"firstname" validate:"required"`
+	LastName  string    `gorm:"not null" json:"lastname" validate:"required"`
+	Birthday  time.Time `gorm:"not null" json:"birthday" validate:"required"`
+	Email     string    `gorm:"not null;unique" json:"email" validate:"required,email"`
+	Phone     string    `gorm:"not null;unique;type:date" json:"phone" validate:"required"`
+	Photo     *string   `json:"photo" validate:"datauri"`
+	Role      string    `gorm:"not null;type:enum('sa','pic','member','secretary')" json:"role" validate:"required"`
+	Password  string    `gorm:"not null" json:"password" validate:"required"`
 	//	Projects  []Project `json:"projects" gorm:"many2many:user_projects;foreignkey:id;references:id;"`
 }
 

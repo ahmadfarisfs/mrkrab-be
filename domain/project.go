@@ -46,11 +46,12 @@ type ProjectMemberRole int
 
 const (
 	PIC ProjectMemberRole = iota
+	Secretary
 	Member
 )
 
 func (d ProjectMemberRole) String() string {
-	return [...]string{"pic", "member"}[d]
+	return [...]string{"pic", "secretary", "member"}[d]
 }
 
 // ProjectUsecase represent the Project's usecases (business process)
@@ -65,8 +66,10 @@ type ProjectUsecase interface {
 	AssignPIC(ctx context.Context, projectID int64, userID int64) error
 	AssignMember(ctx context.Context, projectID int64, userID []int64) error
 	RemoveMember(ctx context.Context, projectID int64, userID int64) error
-
 	SetStatus(ctx context.Context, projectID int64, status ProjectStatus) error
+
+	AddTransaction(ctx context.Context, projectID int64, trx Transaction) error
+	FetchTransaction(ctx context.Context, limitPerPage int64, page int64, filter map[string]string) (res []Transaction, totalRecord int, totalPage int, err error)
 }
 
 // ProjectRepository represent the Projects's repository contract -> implemented in db conn
@@ -76,7 +79,6 @@ type ProjectRepository interface {
 	Update(ctx context.Context, ar *Project) error
 	Store(ctx context.Context, a *Project) error
 	Delete(ctx context.Context, id int64) error
-	//IsPICAssigned(ctx context.Context, projectID int64) (bool, error)
 	GetProjectsByUser(ctx context.Context, userID int64) (map[ProjectMemberRole][]Project, error)
 	GetProjectMember(ctx context.Context, project Project) ([]User, error)
 	AddMember(ctx context.Context, project Project, users []User) error

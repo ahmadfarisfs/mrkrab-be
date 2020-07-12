@@ -11,17 +11,37 @@ import (
 
 type projectUseCase struct {
 	//	DB          *gorm.DB
-	projectRepo domain.ProjectRepository
-	userRepo    domain.UserRepository
-	timeout     time.Duration
+	projectRepo     domain.ProjectRepository
+	userRepo        domain.UserRepository
+	timeout         time.Duration
+	transactionRepo domain.TransactionRepository
 }
 
-func NewProjectUseCase(p domain.ProjectRepository, u domain.UserRepository, timeout time.Duration) domain.ProjectUsecase {
+func NewProjectUseCase(p domain.ProjectRepository, u domain.UserRepository, t domain.TransactionRepository, timeout time.Duration) domain.ProjectUsecase {
 	return &projectUseCase{
-		projectRepo: p,
-		userRepo:    u,
-		timeout:     timeout,
+		transactionRepo: t,
+		projectRepo:     p,
+		userRepo:        u,
+		timeout:         timeout,
 	}
+}
+
+func (p *projectUseCase) FetchTransaction(ctx context.Context, limitPerPage int64, page int64, filter map[string]string) (res []domain.Transaction, totalRecord int, totalPage int, err error) {
+	if limitPerPage == 0 {
+		limitPerPage = 10
+	}
+	if page == 0 {
+		page = 1
+	}
+
+	return nil, 0, 0, nil
+}
+
+func (p *projectUseCase) AddTransaction(ctx context.Context, projectID int64, trx domain.Transaction) error {
+	if trx.ProjectID != int(projectID) {
+		return errors.New("Project ID mismatch")
+	}
+	return p.transactionRepo.Store(ctx, &trx)
 }
 
 func (p *projectUseCase) Fetch(ctx context.Context, limitPerPage int64, page int64, filter map[string]string) (res []domain.Project, totalRecord int, totalPage int, err error) {
