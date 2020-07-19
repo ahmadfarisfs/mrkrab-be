@@ -14,12 +14,16 @@ import (
 	//secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
 	"github.com/ahmadfarisfs/mrkrab-be/domain"
 	projectHandler "github.com/ahmadfarisfs/mrkrab-be/project/delivery/http"
+	transactionHandler "github.com/ahmadfarisfs/mrkrab-be/transaction/delivery/http"
 	userHandler "github.com/ahmadfarisfs/mrkrab-be/user/delivery/http"
+
 	"github.com/ahmadfarisfs/mrkrab-be/utilities"
 
 	projectRepo "github.com/ahmadfarisfs/mrkrab-be/project/repository/mysql"
 	projectUsecase "github.com/ahmadfarisfs/mrkrab-be/project/usecase"
 	trxRepo "github.com/ahmadfarisfs/mrkrab-be/transaction/repository/mysql"
+	trxUsecase "github.com/ahmadfarisfs/mrkrab-be/transaction/usecase"
+
 	userRepo "github.com/ahmadfarisfs/mrkrab-be/user/repository/mysql"
 	userUsecase "github.com/ahmadfarisfs/mrkrab-be/user/usecase"
 
@@ -114,12 +118,13 @@ func main() {
 	transactionRP := trxRepo.NewTransactionRepo(dbConn)
 
 	//usecase init
-	userUC := userUsecase.NewUserUsecase(userRP, nil, timeoutContext)
+	userUC := userUsecase.NewUserUsecase(userRP, projectRP, timeoutContext)
 	projectUC := projectUsecase.NewProjectUseCase(projectRP, userRP, transactionRP, timeoutContext)
+	transactionUD := trxUsecase.NewTransactionUseCase(transactionRP, userRP, timeoutContext)
 
 	//handler init
 	userHandler.NewUserHandler(e, userUC)
 	projectHandler.NewProjectHandler(e, projectUC)
-
+	transactionHandler.NewTransactionHandler(e, transactionUD)
 	log.Fatal(e.Start(viper.GetString("server.address")))
 }

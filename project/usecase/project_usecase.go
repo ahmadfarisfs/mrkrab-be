@@ -6,11 +6,9 @@ import (
 	"time"
 
 	"github.com/ahmadfarisfs/mrkrab-be/domain"
-	//	"gorm.io/gorm"
 )
 
 type projectUseCase struct {
-	//	DB          *gorm.DB
 	projectRepo     domain.ProjectRepository
 	userRepo        domain.UserRepository
 	timeout         time.Duration

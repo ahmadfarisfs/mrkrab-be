@@ -37,6 +37,7 @@ func NewProjectHandler(e *echo.Echo, us domain.ProjectUsecase) {
 	e.DELETE("/project/:id", handler.Delete)
 
 }
+
 func (a *ProjectHandler) RemoveMember(c echo.Context) error {
 	request := struct {
 		ProjectID int64 `json:"project_id" validate:"required"`
@@ -56,6 +57,7 @@ func (a *ProjectHandler) RemoveMember(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, nil)
 }
+
 func (a *ProjectHandler) AddMember(c echo.Context) error {
 	request := struct {
 		ProjectID int64   `json:"project_id" validate:"required"`
