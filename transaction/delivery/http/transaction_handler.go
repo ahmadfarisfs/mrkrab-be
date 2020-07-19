@@ -29,7 +29,7 @@ func NewTransactionHandler(e *echo.Echo, us domain.TransactionUsecase) {
 		TrxUsecase: us,
 	}
 	e.POST("/transaction", handler.AddTransaction)
-	e.GET("/transaction/:id", handler.FetchTransaction)
+	e.GET("/transaction/:id", handler.GetByID)
 	//	e.GET("/transaction", handler.Register)
 }
 
@@ -39,12 +39,24 @@ func (a *TransactionHandler) FetchTransaction(c echo.Context) error {
 	num, _ := strconv.Atoi(numS)
 	pageS := c.QueryParam("page")
 	page, _ := strconv.Atoi(pageS)
+	filter := domain.Transaction{}
 
 	projectIDS := c.QueryParam("project_id")
-	projectID, _ := strconv.Atoi(projectIDS)
+	if projectIDS != "" {
+		projectID, err := strconv.Atoi(projectIDS)
+		if err != nil {
+			return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+		}
+		filter.ProjectID = projectID
+	}
 
-	filter := domain.Transaction{
-		ProjectID: projectID,
+	createdBy := c.QueryParam("created_by")
+	if createdBy != "" {
+		createdBy, err := strconv.Atoi(createdBy)
+		if err != nil {
+			return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+		}
+		filter.CreatorID = createdBy
 	}
 
 	ctx := c.Request().Context()
@@ -53,7 +65,6 @@ func (a *TransactionHandler) FetchTransaction(c echo.Context) error {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
 
-	//c.Response().Header().Set(`X-Cursor`, nextCursor)
 	return c.JSON(http.StatusOK, utilities.Paginator{
 		TotalPage:   totalPage,
 		TotalRecord: totalRecord,
@@ -61,7 +72,7 @@ func (a *TransactionHandler) FetchTransaction(c echo.Context) error {
 	})
 }
 
-// Add will Add the Project by given request body
+// AddTransaction will Add the Project by given request body
 func (a *TransactionHandler) AddTransaction(c echo.Context) (err error) {
 	var Transaction domain.Transaction
 
