@@ -9,6 +9,7 @@ import (
 type Category struct {
 	BaseModel
 	Name string `gorm:"not null" json:"name" validate:"required"`
+	Icon string `gorm:"null" json:"icon"`
 }
 
 // CategoryUsecase represent the Category's usecases (business process)

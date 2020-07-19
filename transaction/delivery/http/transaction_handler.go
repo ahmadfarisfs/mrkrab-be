@@ -76,16 +76,18 @@ func (a *TransactionHandler) FetchTransaction(c echo.Context) error {
 func (a *TransactionHandler) AddTransaction(c echo.Context) (err error) {
 	var Transaction domain.Transaction
 
-	err = c.Bind(&Transaction)
+	err = utilities.BindAndValidate(c, Transaction)
+
+	//err = c.Bind(&Transaction)
 	if err != nil {
 		log.Println(err)
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	if ok, err := isRequestValid(&Transaction); !ok {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
+	/*	if ok, err := isRequestValid(&Transaction); !ok {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+	*/
 	ctx := c.Request().Context()
 	err = a.TrxUsecase.Add(ctx, &Transaction)
 	if err != nil {
@@ -93,6 +95,20 @@ func (a *TransactionHandler) AddTransaction(c echo.Context) (err error) {
 	}
 	log.Println(Transaction)
 	return c.JSON(http.StatusCreated, Transaction)
+}
+
+func (a *TransactionHandler) AddBudget(c echo.Context) (err error) {
+	payload := struct {
+		ProjectID  int `json:"project_id" validator:"required"`
+		CategoryID int `json:"category_id" validator:"required"`
+		Amount     int `json:"amount" validator:"required,min=0"`
+	}{}
+	err = c.Bind(&payload)
+	if err != nil {
+		log.Println(err)
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+	return nil
 }
 
 // GetByID will get User by given id

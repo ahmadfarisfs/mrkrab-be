@@ -30,6 +30,8 @@ type Transaction struct {
 	Description string `gorm:"not null" json:"description" validate:"required"`
 	Amount      uint   `gorm:"not null" json:"amount" validate:"required,min=0"`
 	Type        string `gorm:"not null;type:enum('credit','debit')" json:"type" validate:"required,oneof=credit debit"`
+
+	Approved bool `gorm:"not null;default:false" json:"approved"`
 }
 
 // TransactionUsecase represent the Transaction's usecases (business process)

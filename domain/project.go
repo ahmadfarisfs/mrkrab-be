@@ -11,8 +11,8 @@ type Project struct {
 	Name        string          `gorm:"not null" json:"name" validate:"required"`
 	ProjectType string          `gorm:"not null;type:enum('onetime','business_unit')" json:"project_type"`
 	Status      string          `gorm:"not null;type:enum('offering','ongoing','close')" json:"status"`
-	PICID       *int64          `json:"pic_id" gorm:"pic_id;null" validate:"required"`
-	PIC         *User           `json:"pic_details" gorm:"ForeignKey:PICID;References:id"`
+	PICID       int64           `json:"pic_id" gorm:"pic_id;not null" validate:"required"`
+	PIC         User            `json:"pic_details" gorm:"ForeignKey:PICID;References:id"`
 	Budgets     []ProjectBudget `json:"budget" ` //gorm:"foreignkey:ProjectID;references:id"`
 	Members     []User          `json:"member" gorm:"many2many:project_members;foreignkey:id;references:id;"`
 }
@@ -67,6 +67,7 @@ type ProjectUsecase interface {
 	AssignMember(ctx context.Context, projectID int64, userID []int64) error
 	RemoveMember(ctx context.Context, projectID int64, userID int64) error
 	SetStatus(ctx context.Context, projectID int64, status ProjectStatus) error
+	SetBudget(ctx context.Context, projectID int64, cat Category, amountLimit int) error
 
 	AddTransaction(ctx context.Context, projectID int64, trx Transaction) error
 	FetchTransaction(ctx context.Context, limitPerPage int64, page int64, filter map[string]string) (res []Transaction, totalRecord int, totalPage int, err error)

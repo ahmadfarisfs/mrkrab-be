@@ -59,6 +59,7 @@ func (p *projectUseCase) GetByID(ctx context.Context, id int64) (domain.Project,
 	defer cancel()
 	return p.projectRepo.GetByID(ctx, id)
 }
+
 func (p *projectUseCase) Update(ctx context.Context, ar *domain.Project) error {
 	ctx, cancel := context.WithTimeout(ctx, p.timeout)
 	defer cancel()
@@ -67,6 +68,7 @@ func (p *projectUseCase) Update(ctx context.Context, ar *domain.Project) error {
 func (p *projectUseCase) Add(ctx context.Context, a *domain.Project) error {
 	ctx, cancel := context.WithTimeout(ctx, p.timeout)
 	defer cancel()
+
 	return p.projectRepo.Store(ctx, a)
 }
 func (p *projectUseCase) Delete(ctx context.Context, id int64) error {
@@ -82,6 +84,11 @@ func (p *projectUseCase) GetProjectMember(ctx context.Context, projectID int64) 
 	panic("Note implemented")
 
 }
+func (p *projectUseCase) SetBudget(ctx context.Context, projectID int64, cat domain.Category, amountLimit int) error {
+
+	return nil
+}
+
 func (p *projectUseCase) AssignMember(ctx context.Context, projectID int64, userID []int64) error {
 	//check project ID
 	project, err := p.GetByID(ctx, projectID)
@@ -94,10 +101,8 @@ func (p *projectUseCase) AssignMember(ctx context.Context, projectID int64, user
 	}
 	//check if member == pic
 	for _, val := range userID {
-		if project.PICID != nil {
-			if *project.PICID == val {
-				return errors.New("One of assigned members is PIC in this project")
-			}
+		if project.PICID == val {
+			return errors.New("One of assigned members is PIC in this project")
 		}
 	}
 

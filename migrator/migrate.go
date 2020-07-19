@@ -68,10 +68,11 @@ func main() {
 		panic(err)
 	}
 	dbConn.Create(&domain.User{
-		Email:     "aku@komo.com",
-		FirstName: "aku",
-		LastName:  "komo",
-		Phone:     "0855",
+		Email:     "ahmadfarisfs@gmail.com",
+		Username:  "ahmadfarisfs",
+		FirstName: "Ahmad",
+		LastName:  "Faris",
+		Phone:     "085220576060",
 		Role:      "sa",
 	})
 
@@ -80,7 +81,7 @@ func main() {
 		Name:        "proyeku",
 		ProjectType: "onetime",
 		Status:      "ongoing",
-		PICID:       &picid,
+		PICID:       picid,
 	})
 	dbConn.Create(&domain.Category{
 		Name: "Makanan",

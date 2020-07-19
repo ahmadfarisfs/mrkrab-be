@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	//"github.com/ahmadfarisfs/mrkrab-be/middleware"
 	//secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	//secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
@@ -34,6 +35,14 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
+
+type CustomValidator struct {
+	validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+	return cv.validator.Struct(i)
+}
 
 func init() {
 	var err error
@@ -90,7 +99,9 @@ func main() {
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 
 	e := echo.New()
-	//	e.Use(middleware.Logger())
+	e.Validator = &CustomValidator{validator: validator.New()}
+
+	//e.Use(middleware.Logger())
 	//e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
