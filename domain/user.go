@@ -2,23 +2,49 @@ package domain
 
 import (
 	"context"
+	"encoding/json"
+	"strings"
 	"time"
 )
+
+// first create a type alias
+type JSONDateOnly time.Time
 
 // User ...
 type User struct {
 	//gorm.Model
 	BaseModel
-	Username  string    `gorm:"not null;unique" json:"username" validate:"required"`
-	FirstName string    `gorm:"not null" json:"firstname" validate:"required"`
-	LastName  string    `gorm:"not null" json:"lastname" validate:"required"`
-	Birthday  time.Time `gorm:"not null" json:"birthday" validate:"required"`
-	Email     string    `gorm:"not null;unique" json:"email" validate:"required,email"`
-	Phone     string    `gorm:"not null;unique;type:varchar(255)" json:"phone" validate:"required"`
-	Photo     *string   `json:"photo" validate:"datauri"`
-	Role      string    `gorm:"not null;type:enum('sa','pic','member','secretary')" json:"role" validate:"required"`
-	Password  string    `gorm:"not null" json:"password" validate:"required"`
+	Username  string  `gorm:"not null;unique" json:"username" validate:"required"`
+	FirstName string  `gorm:"not null" json:"firstname" validate:"required"`
+	LastName  string  `gorm:"not null" json:"lastname" validate:"required"`
+	Birthday  string  `gorm:"not null;column:birthday;type:date" json:"birthday" validate:"required"`
+	Email     string  `gorm:"not null;unique" json:"email" validate:"required,email"`
+	Phone     string  `gorm:"not null;unique;type:varchar(255)" json:"phone" validate:"required"`
+	Photo     *string `json:"photo"`
+	Role      string  `gorm:"not null;type:enum('sa','pic','member','secretary')" json:"role" validate:"required"`
+	Password  string  `gorm:"not null" json:"password" validate:"required"`
 	//	Projects  []Project `json:"projects" gorm:"many2many:user_projects;foreignkey:id;references:id;"`
+}
+
+// imeplement Marshaler und Unmarshalere interface
+func (j *JSONDateOnly) UnmarshalJSON(b []byte) error {
+	s := strings.Trim(string(b), "\"")
+	t, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return err
+	}
+	*j = JSONDateOnly(t)
+	return nil
+}
+
+func (j JSONDateOnly) MarshalJSON() ([]byte, error) {
+	return json.Marshal(j)
+}
+
+// Maybe a Format function for printing your date
+func (j JSONDateOnly) Format(s string) string {
+	t := time.Time(j)
+	return t.Format(s)
 }
 
 // Belongs To: `ForeignKey` specifies foreign key field owned by the current model, `References` specifies the association's primary key

@@ -55,7 +55,7 @@ func (p *transactionUseCase) Add(ctx context.Context, a *domain.Transaction) err
 			return errors.New("Source of Fund userID must be set if SoF type is user")
 		}
 	} else if a.SoFType == "other" {
-		if a.SoFAccount == "" {
+		if a.SoFAccount == nil || (a.SoFAccount != nil && *a.SoFAccount == "") {
 			return errors.New("Source of Fund account must be set if SoF type is other")
 		}
 	} else {
@@ -67,14 +67,13 @@ func (p *transactionUseCase) Add(ctx context.Context, a *domain.Transaction) err
 		a.PaidOn = &timeNow
 	}
 
-	/*
-		if a.Type == "credit" {
-
-		} else if a.Type == "debit" {
-			//
-		} else {
-			return errors.New("Invalid Transaction Type")
-		}*/
+	if a.Type == "credit" {
+		//put money in target
+	} else if a.Type == "debit" {
+		//sof is this projects
+	} else {
+		return errors.New("Invalid Transaction Type")
+	}
 
 	return p.transactionRepo.Store(ctx, a)
 }

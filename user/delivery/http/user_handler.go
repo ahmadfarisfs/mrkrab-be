@@ -129,14 +129,17 @@ func isRequestValid(m *domain.User) (bool, error) {
 func (a *UserHandler) Register(c echo.Context) (err error) {
 	var User domain.User
 
-	err = c.Bind(&User)
+	err = utilities.BindAndValidate(c, &User)
 	if err != nil {
 		log.Println(err)
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	var ok bool
-	if ok, err = isRequestValid(&User); !ok {
+	_, err = utilities.ValidateDateOnly(User.Birthday)
+
+	/*	var ok bool*/
+	//	if ok, err = isRequestValid(&User); !ok {
+	if err != nil {
 		log.Println(err)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}

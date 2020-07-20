@@ -10,21 +10,24 @@ import (
 type Transaction struct {
 	//	gorm.Model
 	BaseModel
-	Project   Project `gorm:"foreignkey:ProjectID" json:"-"`
+	Project   Project `gorm:"foreignkey:ProjectID" json:"-" validate:"-"`
 	ProjectID int     `gorm:"not null" json:"project_id" validate:"required"`
 
-	Creator   User `gorm:"foreignkey:CreatorID" json:"-"`
+	Creator   User `gorm:"foreignkey:CreatorID" json:"-" validate:"-" `
 	CreatorID int  `gorm:"not null" json:"creator_id" validate:"required"`
 
-	Category   Category `gorm:"foreignkey:CategoryID" json:"-"`
-	CategoryID int      `gorm:"not null" validate:"required"`
+	Category   Category `gorm:"foreignkey:CategoryID" json:"-" validate:"-"`
+	CategoryID int      `gorm:"not null" validate:"required" json:"category_id"`
 
-	Paid    bool   `gorm:"not null" json:"paid" validate:"required"`
-	SoFType string `gorm:"null;type:enum('user','other')" json:"sof_type" validator:"oneof=user other"` //this field must be set if paid is false
+	Paid    bool   `gorm:"not null" json:"paid"`
+	SoFType string `gorm:"null;type:enum('project','user','other')" json:"sof_type" validator:"oneof=project user other"` //this field must be set if paid is false
 
-	SoFUser    *User      `gorm:"null;foreignkey:SoFUserID" json:"-"`
-	SoFUserID  *int       `gorm:"null" json:"sof_id"`      //this field must be set if sof_type = user
-	SoFAccount string     `gorm:"null" json:"sof_account"` //this field must be set if sof_type = other
+	SoFUser      *User    `gorm:"null;foreignkey:SoFUserID" json:"-"  validate:"-"`
+	SoFUserID    *int     `gorm:"null" json:"sof_user_id"` //this field must be set if sof_type = user
+	SoFProject   *Project `gorm:"null;foreignkey:SoFProjectID" json:"-"  validate:"-"`
+	SoFProjectID *int     `gorm:"null" json:"sof_project_id"` //this field must be set if sof_type = user
+
+	SoFAccount *string    `gorm:"null" json:"sof_account"` //this field must be set if sof_type = other
 	PaidOn     *time.Time `gorm:"null" json:"paid_on"`     //this field should be set when paid become true
 
 	Description string `gorm:"not null" json:"description" validate:"required"`

@@ -2,17 +2,19 @@ POST http://localhost:9090/user
 content-type: application/json
 
 {
-    "firstname":"Bamband",
+    "firstname":"",
     "lastname":"Kupitoko",
     "email":"bambang@koptiki.com",
     "username": "kopo",
     "password": "kopo",
     "role":"sa",
+    "birthday":"1992-02-02",
+    "photo": null,
     "phone":"089"
 }
 
 ###
-GET http://localhost:9090/user/1
+GET http://localhost:9090/user/2
 
 
 ###
@@ -21,8 +23,8 @@ POST http://localhost:9090/user/login
 content-type: application/json
 
 {
-    "username": "ahmadfarisfs",
-    "password": "kk"
+    "username": "kopo",
+    "password": "kopo"
 }
 
 ###

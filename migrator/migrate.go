@@ -72,6 +72,7 @@ func main() {
 		Username:  "ahmadfarisfs",
 		FirstName: "Ahmad",
 		LastName:  "Faris",
+		Birthday:  "1992-01-01",
 		Phone:     "085220576060",
 		Role:      "sa",
 	})
