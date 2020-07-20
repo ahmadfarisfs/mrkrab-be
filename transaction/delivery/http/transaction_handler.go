@@ -76,9 +76,14 @@ func (a *TransactionHandler) FetchTransaction(c echo.Context) error {
 func (a *TransactionHandler) AddTransaction(c echo.Context) (err error) {
 	var Transaction domain.Transaction
 
-	err = utilities.BindAndValidate(c, Transaction)
-
-	//err = c.Bind(&Transaction)
+	//err = utilities.BindAndValidate(c, Transaction)
+	log.Println("here")
+	err = c.Bind(&Transaction)
+	if err != nil {
+		log.Println(err)
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+	err = c.Validate(Transaction)
 	if err != nil {
 		log.Println(err)
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
