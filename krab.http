@@ -1,0 +1,74 @@
+POST http://127.0.0.1:8585/api/account/
+content-type: application/json
+
+{
+    "Name": "PROJECT-FTW-FIRMWARE",
+    "ParentAccount": 14
+}
+
+###
+GET http://127.0.0.1:8585/api/account?limit=5&offset=4
+###
+
+GET http://127.0.0.1:8585/api/account/33
+
+###
+POST http://127.0.0.1:8585/api/transaction/
+content-type: application/json
+
+{
+    "AccountID": 32,
+    "Amount": -100000,
+    "Remarks": "Kurangin dong"
+}
+
+###
+GET http://127.0.0.1:8585/api/projects/1
+
+###
+GET http://127.0.0.1:8585/api/projects?range=[0,10]
+
+###
+POST http://127.0.0.1:8585/api/projects
+content-type: application/json
+
+{
+    "name": "SDFyafga aasme",
+    "budget": 50000000,
+    "description":"Psadsad"
+}
+
+###
+POST http://127.0.0.1:8585/api/project/transaction
+content-type: application/json
+
+{
+    "ProjectID": 1,
+    "BudgetID": null,
+    "Amount":11000,
+    "Remarks":"Halo"
+}
+
+###
+POST http://127.0.0.1:8585/api/project/pocket
+content-type: application/json
+
+{
+    "ProjectID": 2,
+    "Budget": null,
+    "Name":"Firmawre"
+}
+
+###
+POST http://127.0.0.1:8585/api/project/transfer
+content-type: application/json
+
+{
+   "ProjectIDSource": 1,
+    "BudgetIDSource": 6,
+    "ProjectIDTarget": 1,
+    "BudgetIDTarget": 7,
+    
+    "Amount":11000,
+    "Remarks":"inner project trf"
+}

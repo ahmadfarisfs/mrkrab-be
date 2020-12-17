@@ -1,7 +1,0 @@
-POST http://localhost:9090/project/member/add
-content-type: application/json
-
-{
-    "project_id": 1,
-    "member_ids": [2]
-}

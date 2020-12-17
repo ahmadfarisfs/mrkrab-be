@@ -1,31 +1,31 @@
-BINARY=engine
-test: 
-	go test -v -cover -covermode=atomic ./...
+#@IgnoreInspection BashAddShebang
+export ROOT=$(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+export DEBUG=true
+export APP=golang-echo-realworld-example-app
+export LDFLAGS="-w -s"
 
-engine:
-	go build -o ${BINARY} app/*.go
+all: build test
 
+build:
+	go build -race  .
 
-unittest:
-	go test -short  ./...
-
-clean:
-	if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
-
-docker:
-	docker build -t go-clean-arch .
+build-static:
+	CGO_ENABLED=0 go build -race -v -o $(APP) -a -installsuffix cgo -ldflags $(LDFLAGS) .
 
 run:
-	docker-compose up --build -d
+	go run -race .
 
-stop:
-	docker-compose down
+############################################################
+# Test
+############################################################
 
-lint-prepare:
-	@echo "Installing golangci-lint" 
-	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s latest
+test:
+	go test -v -race ./...
 
-lint:
-	./bin/golangci-lint run ./...
+container:
+	docker build -t echo-realworld .
 
-.PHONY: clean install unittest build docker run stop vendor lint-prepare lint
+run-container:
+	docker run --rm -it echo-realworld
+
+.PHONY: build run build-static test container
