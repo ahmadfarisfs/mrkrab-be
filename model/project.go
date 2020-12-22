@@ -1,8 +1,12 @@
 package model
 
+import "time"
+
 type Project struct {
-	BaseModel
-	Name        string
+	ID          uint `gorm:"primarykey"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Name        string `gorm:"unique"`
 	AccountID   int
 	Account     Account `json:"-"`
 	Amount      *uint
@@ -12,7 +16,9 @@ type Project struct {
 }
 
 type Budget struct {
-	BaseModel
+	ID        uint `gorm:"primarykey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 	Name      string
 	ProjectID uint
 	Project   Project `json:"-"`

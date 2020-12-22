@@ -32,4 +32,10 @@ func (h *Handler) Register(v1 *echo.Group) {
 	prjGroup.POST("/transaction", h.CreateProjectTransaction)
 	prjGroup.POST("/transfer", h.CreateProjectTransfer)
 
+	userGroup := v1.Group("/users")
+	userGroup.GET("/:id", h.GetUser)
+	userGroup.DELETE("/:id", h.DeleteUser)
+	userGroup.GET("", h.ListUser)
+	userGroup.POST("", h.CreateUser)
+
 }

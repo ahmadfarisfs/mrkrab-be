@@ -43,6 +43,10 @@ func (h *Handler) GetProject(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	if len(res) == 0 {
+		return c.JSON(http.StatusNotFound, nil)
+
+	}
 	return c.JSON(http.StatusOK, res[0])
 }
 
@@ -56,15 +60,32 @@ func (h *Handler) CreateProject(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+
 	//create project on that account
-	ac, err := h.projectStore.CreateProject(req.Name, int(account.ID), req.Budget, req.Description)
+	ac, err := h.projectStore.CreateProject(req.Name, int(account.ID), req.TotalBudget, req.Description)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+
+	for _, p := range req.Budgets {
+		accIDProjUint := uint(ac.AccountID)
+		//create account for pocket
+		pocketName := "PROJECT-" + strings.ToUpper(req.Name) + "-" + strings.ToUpper(p.Name)
+		account, err = h.accountStore.CreateAccount(pocketName, &accIDProjUint)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		//create pocket on
+		_, err := h.projectStore.CreatePocket(int(ac.ID), p.Name, account.ID, p.Budget)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+	}
+
 	prj, _, _, err := h.projectStore.GetProjectDetails(int(ac.ID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
-
 	}
 	return c.JSON(http.StatusOK, prj)
 }
@@ -74,7 +95,7 @@ func (h *Handler) CreatePocket(c echo.Context) error {
 	if err := req.bind(c); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
-	//create account for project
+	//get prjt
 	project, projAccountID, _, err := h.projectStore.GetProjectDetails(req.ProjectID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -88,8 +109,6 @@ func (h *Handler) CreatePocket(c echo.Context) error {
 	}
 
 	//create pocket on
-	log.Println("Project ID")
-	log.Println(req.ProjectID)
 	prj, err := h.projectStore.CreatePocket(req.ProjectID, req.Name, account.ID, req.Budget)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())

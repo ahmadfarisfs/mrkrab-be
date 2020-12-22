@@ -2,6 +2,24 @@ package handler
 
 import "github.com/labstack/echo/v4"
 
+type createUserRequest struct {
+	Fullname string `validate:"required"`
+	Username string `validate:"required"`
+	Role     string `validate:"required"`
+	Password string `validate:"required"`
+	Email    string `validate:"required"`
+}
+
+func (ca *createUserRequest) bind(c echo.Context) error {
+	if err := c.Bind(ca); err != nil {
+		return err
+	}
+	if err := c.Validate(ca); err != nil {
+		return err
+	}
+	return nil
+}
+
 type createAccountRequest struct {
 	Name          string `validate:"required"`
 	ParentAccount *uint  `validate:"omitempty"`
@@ -52,9 +70,10 @@ func (ca *createTransferRequest) bind(c echo.Context) error {
 }
 
 type createProjectRequest struct {
-	Budget      *uint   `validate:"omitempty"`
+	TotalBudget *uint   `validate:"omitempty"`
 	Name        string  `validate:"required"`
 	Description *string `validate:"omitempty"`
+	Budgets     []createPocketRequest
 }
 
 func (ca *createProjectRequest) bind(c echo.Context) error {

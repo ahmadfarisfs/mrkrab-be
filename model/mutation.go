@@ -1,7 +1,11 @@
 package model
 
+import "time"
+
 type Mutation struct {
-	BaseModel
+	ID            uint      `gorm:"primarykey"` // json:"id"`
+	CreatedAt     time.Time //`json:"created_at"`
+	UpdatedAt     time.Time
 	AccountID     int
 	Account       Account
 	TransactionID int

@@ -33,9 +33,19 @@ POST http://127.0.0.1:8585/api/projects
 content-type: application/json
 
 {
-    "name": "SDFyafga aasme",
-    "budget": 50000000,
-    "description":"Psadsad"
+    "Name": "SDF Kedua",
+    "TotalBudget": 50000000,
+    "Description":"Psadsad",
+    "Budgets":[
+        {
+            "Name":"Mechanical",
+            "Budget":null
+        },
+        {
+            "Name":"Electrical",
+            "Budget":1000000
+        }
+    ]
 }
 
 ###
@@ -50,7 +60,7 @@ content-type: application/json
 }
 
 ###
-POST http://127.0.0.1:8585/api/project/pocket
+POST http://127.0.0.1:8585/api/projects/pocket
 content-type: application/json
 
 {
@@ -60,7 +70,7 @@ content-type: application/json
 }
 
 ###
-POST http://127.0.0.1:8585/api/project/transfer
+POST http://127.0.0.1:8585/api/projects/transfer
 content-type: application/json
 
 {
@@ -72,3 +82,25 @@ content-type: application/json
     "Amount":11000,
     "Remarks":"inner project trf"
 }
+
+
+###
+
+GET http://127.0.0.1:8585/api/users?range=[0,100]
+
+###
+POST http://127.0.0.1:8585/api/users
+content-type: application/json
+
+{
+    "Fullname": "Bambang2",
+    "Username": "bambang_22",
+    "Password":"firmawafasfasfasfe",
+    "Email":"bambangf@joko.kom",
+    "Role":"admin"
+}
+
+
+###
+
+DELETE http://127.0.0.1:8585/api/users/9

@@ -19,6 +19,7 @@ func NewProjectStore(db *gorm.DB) *ProjectStore {
 }
 
 func (ps *ProjectStore) CreateProject(name string, accountID int, budget *uint, description *string) (model.Project, error) {
+
 	ret := model.Project{Name: name, AccountID: accountID, Amount: budget, Description: description}
 	err := ps.db.Model(&model.Project{}).Create(&ret).Error
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"github.com/ahmadfarisfs/krab-core/handler"
 	"github.com/ahmadfarisfs/krab-core/router"
 	"github.com/ahmadfarisfs/krab-core/store"
+	"github.com/spf13/viper"
 	// echo-swagger middleware
 )
 
@@ -26,6 +27,13 @@ import (
 // @name Authorization
 
 func main() {
+	viper.SetConfigType("json")
+	viper.AddConfigPath(".")
+	viper.SetConfigFile("config.json")
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic("Error Reading config")
+	}
 	r := router.New()
 
 	//r.GET("/swagger/*", echoSwagger.WrapHandler)
@@ -37,7 +45,8 @@ func main() {
 	as := store.NewAccountStore(d)
 	ts := store.NewTransactionStore(d)
 	ps := store.NewProjectStore(d)
-	h := handler.NewHandler(as, ts, ps)
+	us := store.NewUserStore(d)
+	h := handler.NewHandler(as, ts, ps, us)
 	h.Register(v1)
-	r.Logger.Fatal(r.Start("127.0.0.1:8585"))
+	r.Logger.Fatal(r.Start("127.0.0.1:" + viper.GetString(`service.port`)))
 }
