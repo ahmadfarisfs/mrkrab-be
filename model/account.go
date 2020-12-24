@@ -1,14 +1,10 @@
 package model
 
-import "time"
-
 type Account struct {
-	ID           uint `gorm:"primarykey"`
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	BaseModel
 	AccountName  string `gorm:"unique"`
 	ParentID     *uint
-	Parent       *Account
+	Parent       *Account `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Balance      int
 	TotalIncome  int
 	TotalExpense int

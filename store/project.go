@@ -84,3 +84,16 @@ func (ps *ProjectStore) ListProject(req utils.CommonRequest) ([]model.Project, i
 	err = quer.Find(&ret).Error
 	return ret, int(count), err
 }
+
+func (ps *ProjectStore) DeleteProject(id int) error {
+	return ps.db.Where("id = ?", id).Delete(&model.Project{}).Error
+}
+
+func (ps *ProjectStore) UpdateProject(prj model.Project) error {
+	log.Println(prj)
+	editPayload := map[string]interface{}{"is_open": prj.IsOpen}
+	if prj.Description != nil {
+		editPayload["description"] = prj.Description
+	}
+	return ps.db.Model(&model.Project{}).Where("id = ?", prj.ID).Updates(editPayload).Error
+}

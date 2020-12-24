@@ -6,7 +6,9 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/ahmadfarisfs/krab-core/model"
 	"github.com/ahmadfarisfs/krab-core/utils"
 	"github.com/labstack/echo/v4"
 )
@@ -29,6 +31,21 @@ func (h *Handler) ListProject(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, res)
 
+}
+
+func (h *Handler) DeleteProject(c echo.Context) error {
+	//TODO: check user validity
+	projectID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	err = h.projectStore.DeleteProject(projectID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, nil)
 }
 
 func (h *Handler) GetProject(c echo.Context) error {
@@ -56,7 +73,7 @@ func (h *Handler) CreateProject(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 	//create account for project
-	account, err := h.accountStore.CreateAccount("PROJECT-"+strings.ToUpper(req.Name), nil)
+	account, err := h.accountStore.CreateAccount("PROJECT-"+strings.ToUpper(req.Name)+"-"+strconv.Itoa(int(time.Now().Unix())), nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -114,7 +131,7 @@ func (h *Handler) CreatePocket(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, utils.StandardResponse{Success: true, Data: prj})
+	return c.JSON(http.StatusOK, prj)
 }
 
 func (h *Handler) CreateProjectTransaction(c echo.Context) error {
@@ -150,7 +167,7 @@ func (h *Handler) CreateProjectTransaction(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, utils.StandardResponse{Success: true, Data: trx})
+	return c.JSON(http.StatusOK, trx)
 }
 
 func (h *Handler) CreateProjectTransfer(c echo.Context) error {
@@ -221,4 +238,32 @@ func (h *Handler) CreateProjectTransfer(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, utils.StandardResponse{Success: true, Data: ret})
+}
+
+func (h *Handler) UpdateProject(c echo.Context) error {
+	req := &updateProjectRequest{}
+	if err := req.bind(c); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+	isOpen := false
+	if req.Status == "open" {
+		isOpen = true
+	}
+	edit := model.Project{
+		BaseModel: model.BaseModel{
+			ID: uint(req.ProjectID),
+		},
+		IsOpen:      isOpen,
+		Description: req.Description,
+	}
+	err := h.projectStore.UpdateProject(edit)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	prj, _, _, err := h.projectStore.GetProjectDetails(int(req.ProjectID))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, prj)
 }

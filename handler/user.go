@@ -28,6 +28,7 @@ func (h *Handler) ListUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 
 }
+
 func (h *Handler) GetUser(c echo.Context) error {
 	userID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

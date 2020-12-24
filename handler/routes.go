@@ -27,6 +27,8 @@ func (h *Handler) Register(v1 *echo.Group) {
 	prjGroup.GET("/:id", h.GetProject)
 	prjGroup.GET("", h.ListProject)
 	prjGroup.POST("", h.CreateProject)
+	prjGroup.DELETE("/:id", h.DeleteProject)
+	prjGroup.PUT("", h.UpdateProject)
 
 	prjGroup.POST("/pocket", h.CreatePocket)
 	prjGroup.POST("/transaction", h.CreateProjectTransaction)

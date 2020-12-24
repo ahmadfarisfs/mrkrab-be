@@ -12,4 +12,6 @@ type ProjectStore interface {
 	GetProjectDetails(projectID int) (model.Project, uint, []uint, error)
 	CheckBudgetIDValidity(budgetID int, projectID int) (model.Budget, error)
 	ListProject(req utils.CommonRequest) ([]model.Project, int, error)
+	UpdateProject(prj model.Project) error
+	DeleteProject(id int) error
 }

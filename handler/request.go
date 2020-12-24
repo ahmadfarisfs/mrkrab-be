@@ -102,6 +102,22 @@ func (ca *createPocketRequest) bind(c echo.Context) error {
 	return nil
 }
 
+type updateProjectRequest struct {
+	ProjectID   int     `validate:"required"`
+	Status      string  `validate:"required"`
+	Description *string `validate:"omitempty"`
+}
+
+func (ca *updateProjectRequest) bind(c echo.Context) error {
+	if err := c.Bind(ca); err != nil {
+		return err
+	}
+	if err := c.Validate(ca); err != nil {
+		return err
+	}
+	return nil
+}
+
 type createProjectTransactionRequest struct {
 	ProjectID int    `validate:"required"`
 	BudgetID  *uint  `validate:"omitempty"`

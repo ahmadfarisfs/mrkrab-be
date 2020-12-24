@@ -1,14 +1,10 @@
 package model
 
-import "time"
-
 type Mutation struct {
-	ID            uint      `gorm:"primarykey"` // json:"id"`
-	CreatedAt     time.Time //`json:"created_at"`
-	UpdatedAt     time.Time
+	BaseModel
 	AccountID     int
-	Account       Account
+	Account       Account `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	TransactionID int
-	Transaction   Transaction
-	Amount        int //deltas
+	Transaction   Transaction `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Amount        int         //deltas
 }
