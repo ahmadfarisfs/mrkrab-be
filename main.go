@@ -46,7 +46,8 @@ func main() {
 	ts := store.NewTransactionStore(d)
 	ps := store.NewProjectStore(d)
 	us := store.NewUserStore(d)
-	h := handler.NewHandler(as, ts, ps, us)
+	ms := store.NewMutationStore(ps, d)
+	h := handler.NewHandler(as, ts, ps, us, ms)
 	h.Register(v1)
 	r.Logger.Fatal(r.Start("127.0.0.1:" + viper.GetString(`service.port`)))
 }

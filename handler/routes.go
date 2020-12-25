@@ -18,7 +18,7 @@ func (h *Handler) Register(v1 *echo.Group) {
 	//shortcut - only valid for cash transaction (assets and expenses)
 	trxGroup.POST("/create", h.CreateTransaction)
 	trxGroup.GET("/:id", h.ViewTransactionDetails)
-	trxGroup.GET("", h.ListTransaction)
+	trxGroup.GET("", h.ListMutation)
 
 	trfGroup := v1.Group("/transfer")
 	trfGroup.POST("", h.CreateTransfer)

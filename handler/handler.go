@@ -9,13 +9,18 @@ type Handler struct {
 	transactionStore contract.TransactionStore
 	projectStore     contract.ProjectStore
 	userStore        contract.UserStore
+	mutationStore    contract.MutationStore
 }
 
-func NewHandler(as contract.AccountStore, ts contract.TransactionStore, ps contract.ProjectStore, us contract.UserStore) *Handler {
+func NewHandler(as contract.AccountStore, ts contract.TransactionStore,
+	ps contract.ProjectStore, us contract.UserStore,
+	ms contract.MutationStore) *Handler {
+
 	return &Handler{
 		accountStore:     as,
 		transactionStore: ts,
 		projectStore:     ps,
 		userStore:        us,
+		mutationStore:    ms,
 	}
 }

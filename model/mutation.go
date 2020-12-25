@@ -1,5 +1,9 @@
 package model
 
+import (
+	"time"
+)
+
 type Mutation struct {
 	BaseModel
 	AccountID     int
@@ -7,4 +11,23 @@ type Mutation struct {
 	TransactionID int
 	Transaction   Transaction `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Amount        int         //deltas
+
+}
+
+type MutationExtended struct {
+	ID                 uint
+	PocketID           *uint
+	ProjectID          uint
+	IsOpen             bool
+	CreatedAt          time.Time
+	Amount             int
+	Remarks            string
+	TransactionCode    string
+	ProjectDescription string
+	ProjectName        string
+	PocketName         *string
+	PocketLimit        *int
+	// Mutation
+	// Project Project `gorm:"-"`
+	// Budget  *Budget `gorm:"-"`
 }

@@ -20,11 +20,18 @@ func NewTransactionStore(db *gorm.DB) *TransactionStore {
 }
 
 func (ac *TransactionStore) ListTransaction(req utils.CommonRequest) ([]model.Transaction, int, error) {
+	//transaksi tiap proyek
+	//info mutasi setiap akun under proyek
+	//1. find all pockets under projects
+	//2 find all ackun id of pockets
+	//3 . find akun id of projects
+	//4. find in mutation table yang punya id tersebut semua, join dengan tabel transaksu
+
 	ret := []model.Transaction{}
 	var count int64
 	//query builder
 
-	initQuery := ac.db.Preload("Mutation")
+	initQuery := ac.db.Preload("Mutation").Preload("Mutation.Account")
 	//	Where("created_date BETWEEN ? and ?", startTime, endTime).
 	//Where("account_id in (?)", accountID)
 	//count total data
@@ -63,6 +70,7 @@ func (ac *TransactionStore) CreateTransaction(accountID int, amount int, remarks
 	if amount < 0 {
 		if ret.Balance+amount < 0 {
 			//cannot do
+
 			return model.Transaction{}, errors.New("Account does not have enough balance")
 		}
 	}

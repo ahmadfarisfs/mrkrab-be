@@ -43,7 +43,10 @@ func AppendCommonRequest(db *gorm.DB, req CommonRequest) *gorm.DB {
 	}
 
 	for k, v := range req.Search {
-		db = db.Where(k+" LIKE '%?%'", v)
+		switch v.(type) {
+		case string:
+			db = db.Where(k+" LIKE ?", "%"+v.(string)+"%")
+		}
 	}
 
 	if req.SortBy != "" && req.SortType != "" {

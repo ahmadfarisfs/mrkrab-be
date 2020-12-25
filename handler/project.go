@@ -140,7 +140,7 @@ func (h *Handler) CreateProjectTransaction(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 	//get project info
-	_, projAccountID, budgetAccountIDs, err := h.projectStore.GetProjectDetails(req.ProjectID)
+	proj, projAccountID, budgetAccountIDs, err := h.projectStore.GetProjectDetails(req.ProjectID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -155,9 +155,19 @@ func (h *Handler) CreateProjectTransaction(c echo.Context) error {
 			}
 		}
 		if !isValid {
-			return c.JSON(http.StatusInternalServerError, utils.StandardResponse{Success: false, ErrorMessage: "invalid budgetid"})
+			return c.JSON(http.StatusInternalServerError, "Invalid budget ID")
 		}
-		accountID = int(*req.BudgetID)
+		//harus transalate dari budgetID ke accountID
+		isValid = false
+		for _, budget := range proj.Budgets {
+			if budget.ID == uint(*req.BudgetID) {
+				accountID = int(budget.AccountID)
+				isValid = true
+			}
+		}
+		if !isValid {
+			return c.JSON(http.StatusInternalServerError, "Invalid budget account ID")
+		}
 	} else {
 		accountID = int(projAccountID)
 	}

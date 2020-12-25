@@ -81,7 +81,7 @@ func (ps *ProjectStore) ListProject(req utils.CommonRequest) ([]model.Project, i
 	log.Println(req)
 	//actually fetch data with limit and offset
 	quer := utils.AppendCommonRequest(initQuery, req)
-	err = quer.Find(&ret).Error
+	err = quer.Preload("Budgets").Find(&ret).Error
 	return ret, int(count), err
 }
 

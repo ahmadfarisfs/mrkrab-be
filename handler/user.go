@@ -18,13 +18,7 @@ func (h *Handler) ListUser(c echo.Context) error {
 		log.Println(err)
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	//	c.Response().Header().Set("Access-Control-Allow-Origin", Origin)
-	//	c.Response().Header().Set("Access-Control-Allow-Methods", "GET,DELETE,POST,PUT")
-	//	c.Response().Header().Set("Access-Control-Allow-Credentials", "true")
-	//	c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	c.Response().Header().Set("Content-Range", "users "+strconv.Itoa(payload.StartIndex)+"-"+strconv.Itoa(payload.EndIndex)+"/"+strconv.Itoa(totalData))
-	//Access-Control-Expose-Headers
-
 	return c.JSON(http.StatusOK, res)
 
 }
