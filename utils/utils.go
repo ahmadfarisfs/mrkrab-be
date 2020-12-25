@@ -24,7 +24,8 @@ var (
 type CommonRequest struct {
 	StartIndex int
 	EndIndex   int
-	Filter     map[string]interface{}
+	Filter     map[string]interface{} //will be queried using =
+	Search     map[string]interface{} //will be queried using LIKE
 	SortBy     string
 	SortType   string
 }
@@ -87,6 +88,25 @@ func ParseCommonRequest(c echo.Context) (ret CommonRequest, errRet error) {
 			}
 		}
 
+	}
+	searchQuery := c.QueryParam("search")
+	if searchQuery != "" {
+		err := json.Unmarshal([]byte(searchQuery), &ret.Search)
+		if err != nil {
+			errRet = errors.New("Invalid filter search params format")
+			return
+		}
+		for _, v := range ret.Search {
+			switch result := v.(type) {
+			case string:
+				log.Println("string:", result)
+			case int:
+				log.Println("int:", result)
+			default:
+				errRet = errors.New("Invalid filter inside params search format")
+				return
+			}
+		}
 	}
 	return
 }

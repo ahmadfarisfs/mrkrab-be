@@ -87,7 +87,7 @@ func (h *Handler) CreateProject(c echo.Context) error {
 	for _, p := range req.Budgets {
 		accIDProjUint := uint(ac.AccountID)
 		//create account for pocket
-		pocketName := "PROJECT-" + strings.ToUpper(req.Name) + "-" + strings.ToUpper(p.Name)
+		pocketName := "PROJECT-" + strings.ToUpper(req.Name) + "-" + strings.ToUpper(p.Name) + "-" + strconv.Itoa(int(time.Now().Unix()))
 		account, err = h.accountStore.CreateAccount(pocketName, &accIDProjUint)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
@@ -119,7 +119,7 @@ func (h *Handler) CreatePocket(c echo.Context) error {
 	}
 
 	//create account for project
-	pocketName := "PROJECT-" + strings.ToUpper(project.Name) + "-" + strings.ToUpper(req.Name)
+	pocketName := "PROJECT-" + strings.ToUpper(project.Name) + "-" + strings.ToUpper(req.Name) + "-" + strconv.Itoa(int(time.Now().Unix()))
 	account, err := h.accountStore.CreateAccount(pocketName, &projAccountID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
