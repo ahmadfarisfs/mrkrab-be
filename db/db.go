@@ -46,12 +46,12 @@ func New() *gorm.DB {
 func AutoMigrate(db *gorm.DB) {
 	err := db.AutoMigrate(
 		&model.Account{},
-
 		&model.Transaction{},
 		&model.Mutation{},
 		&model.Project{},
 		&model.Budget{},
 		&model.User{},
+		&model.PayRec{},
 	)
 	if err != nil {
 		panic("Error migration" + err.Error())

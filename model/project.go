@@ -8,6 +8,7 @@ type Project struct {
 	Amount      *uint
 	IsOpen      bool
 	Description *string
+	IsPooling   bool
 	Budgets     []Budget `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"` //`gorm:"many2many:project_budgets;"`
 }
 

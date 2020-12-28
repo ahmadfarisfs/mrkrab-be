@@ -40,4 +40,12 @@ func (h *Handler) Register(v1 *echo.Group) {
 	userGroup.GET("", h.ListUser)
 	userGroup.POST("", h.CreateUser)
 
+	payRecFroup := v1.Group("/payrec")
+	// payRecFroup.GET("/:id", h.GetUser)
+	// payRecFroup.DELETE("/:id", h.DeleteUser)
+	payRecFroup.GET("", h.ListPayRec)
+	payRecFroup.POST("", h.CreatePayRec)
+	payRecFroup.GET("/approve/:id", h.Approve)
+	payRecFroup.GET("/reject/:id", h.Reject)
+
 }

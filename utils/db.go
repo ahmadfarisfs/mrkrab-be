@@ -9,15 +9,15 @@ import (
 func AppendCommonRequest(db *gorm.DB, req CommonRequest) *gorm.DB {
 
 	for k, v := range req.Filter {
-		if k == "created_on" {
+		if k == "created_at" {
 			continue
 		}
 		if k == "start_date" {
-			db = db.Where("created_on > ?", v)
+			db = db.Where("created_at > ?", v)
 			continue
 		}
 		if k == "end_date" {
-			db = db.Where("created_on < ?", v)
+			db = db.Where("created_at < ?", v)
 			continue
 		}
 		switch v.(type) {

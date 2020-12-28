@@ -191,3 +191,20 @@ func (ca *createProjectTransferRequest) analyze() (dir TransferDirection, isSame
 	return
 
 }
+
+type createPayRecRequest struct {
+	ProjectID int    `validate:"required"`
+	BudgetID  *uint  `validate:"omitempty"`
+	Remarks   string `validate:"required"`
+	Amount    int    `validate:"required"`
+}
+
+func (ca *createPayRecRequest) bind(c echo.Context) error {
+	if err := c.Bind(ca); err != nil {
+		return err
+	}
+	if err := c.Validate(ca); err != nil {
+		return err
+	}
+	return nil
+}

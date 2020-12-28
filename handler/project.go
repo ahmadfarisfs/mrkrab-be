@@ -192,7 +192,7 @@ func (h *Handler) CreateProjectTransfer(c echo.Context) error {
 	trfDir, isSameProject := req.analyze()
 	if !isSameProject && trfDir != ProjectToProject {
 		//illegal
-		return c.JSON(http.StatusUnauthorized, utils.StandardResponse{Success: false, ErrorMessage: "Inter project can only transfered to project account"})
+		return c.JSON(http.StatusUnauthorized, "Pocket can only transfered to parent project")
 	}
 
 	//get project and its accounts
@@ -209,7 +209,7 @@ func (h *Handler) CreateProjectTransfer(c echo.Context) error {
 	if trfDir == ProjectToPocket || trfDir == ProjectToProject {
 		_, _, _, err := h.projectStore.GetProjectDetails(req.ProjectIDSource)
 		if err != nil {
-			return c.JSON(http.StatusUnauthorized, utils.StandardResponse{Success: false, ErrorMessage: "Invalid Source Project ID"})
+			return c.JSON(http.StatusUnauthorized, "Invalid Source Project ID")
 		}
 		sourceAccount = int(projectSourceAccountID)
 	}
@@ -217,37 +217,37 @@ func (h *Handler) CreateProjectTransfer(c echo.Context) error {
 	//sof: pocket
 	if trfDir == PocketToProject || trfDir == PocketToPocket {
 		//check budgetid validity
-		_, err := h.projectStore.CheckBudgetIDValidity(int(*req.BudgetIDSource), req.ProjectIDSource)
+		bgt, err := h.projectStore.CheckBudgetIDValidity(int(*req.BudgetIDSource), req.ProjectIDSource)
 		if err != nil {
-			return c.JSON(http.StatusUnauthorized, utils.StandardResponse{Success: false, ErrorMessage: "Invalid Source Budget ID"})
+			return c.JSON(http.StatusUnauthorized, "Invalid Source Budget ID")
 		}
-		sourceAccount = int(*req.BudgetIDSource)
+		sourceAccount = int(bgt.AccountID)
 	}
 
 	//tof: project
 	if trfDir == PocketToProject || trfDir == ProjectToProject {
 		_, _, _, err := h.projectStore.GetProjectDetails(req.ProjectIDTarget)
 		if err != nil {
-			return c.JSON(http.StatusUnauthorized, utils.StandardResponse{Success: false, ErrorMessage: "Invalid Target Project ID"})
+			return c.JSON(http.StatusUnauthorized, "Invalid Target Project ID")
 		}
 		targetAccount = int(projectTargetAccountID)
 	}
 
 	//tof: pocket
 	if trfDir == ProjectToPocket || trfDir == PocketToPocket {
-		_, err := h.projectStore.CheckBudgetIDValidity(int(*req.BudgetIDSource), req.ProjectIDSource)
+		bgt, err := h.projectStore.CheckBudgetIDValidity(int(*req.BudgetIDTarget), req.ProjectIDTarget)
 		if err != nil {
-			return c.JSON(http.StatusUnauthorized, utils.StandardResponse{Success: false, ErrorMessage: "Invalid Target Budget ID"})
+			return c.JSON(http.StatusUnauthorized, "Invalid Target Budget ID")
 		}
 
-		targetAccount = int(*req.BudgetIDTarget)
+		targetAccount = int(bgt.AccountID)
 	}
 
-	ret, err := h.transactionStore.CreateTransfer(sourceAccount, targetAccount, req.Amount, req.Remarks)
+	ret, err := h.transactionStore.CreateTransfer(sourceAccount, targetAccount, req.Amount, "TRF: "+req.Remarks)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, utils.StandardResponse{Success: true, Data: ret})
+	return c.JSON(http.StatusOK, ret)
 }
 
 func (h *Handler) UpdateProject(c echo.Context) error {

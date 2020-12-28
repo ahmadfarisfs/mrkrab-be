@@ -57,7 +57,7 @@ func (ms *MutationStore) ListMutation(req utils.CommonRequest) ([]model.Mutation
 		Joins("left JOIN accounts as a2  ON (a2.id = a.parent_id and a.parent_id is not null)").
 		Joins("left join projects as prj on (prj.account_id=a.id and a.parent_id is null)").
 		Joins("left join projects as prj2 on (a2.id = prj2.account_id)").
-		Joins("left join budgets on (budgets.account_id=a.id and a.parent_id is not null)").
+		Joins("left join budgets on (budgets.account_id=a.id and a.parent_id is not null)"). //akun yang parent id nya tidak null adalah budgets
 		Joins("left join transactions as t on t.id = mutations.transaction_id").
 		Where("prj.id is not null or prj2.id is not null").
 		Order("mutations.created_at asc").Table("mutations").
@@ -76,13 +76,30 @@ func (ms *MutationStore) ListMutation(req utils.CommonRequest) ([]model.Mutation
 	// pocketDetails := []model.Budget{}
 	// queryPocket := ms.db.Model(&model.Budget{})
 	if req.Filter["pocketIDs"] != nil {
-		initQuery = initQuery.Where("(bgt.id is null or bgt.id in (?))", req.Filter["pocketIDs"])
+		// initQuery = initQuery.Where("(budgets.id is null or budgets.id in (?))", req.Filter["pocketIDs"])
+		initQuery = initQuery.Where(" budgets.id in (?)", req.Filter["pocketIDs"])
+
 		delete(req.Filter, "pocketIDs")
 	}
 
 	if req.Filter["type"] != nil {
 		//filter by expense,all, or income
+		switch req.Filter["type"] {
+		case "expense":
+			initQuery = initQuery.Where("mutations.amount < 0")
+		case "income":
+			initQuery = initQuery.Where("mutations.amount > 0")
+		}
 		delete(req.Filter, "type")
+	}
+	if req.Filter["start_date"] != nil {
+		initQuery = initQuery.Where("mutations.created_at > ?", req.Filter["start_date"])
+		delete(req.Filter, "start_date")
+	}
+	if req.Filter["end_date"] != nil {
+		initQuery = initQuery.Where("mutations.created_at < ?", req.Filter["end_date"])
+
+		delete(req.Filter, "end_date")
 	}
 
 	// initQuery.Find(&pocketDetails)

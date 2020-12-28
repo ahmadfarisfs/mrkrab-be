@@ -10,11 +10,12 @@ type Handler struct {
 	projectStore     contract.ProjectStore
 	userStore        contract.UserStore
 	mutationStore    contract.MutationStore
+	payRecStore      contract.PayRecStore
 }
 
 func NewHandler(as contract.AccountStore, ts contract.TransactionStore,
 	ps contract.ProjectStore, us contract.UserStore,
-	ms contract.MutationStore) *Handler {
+	ms contract.MutationStore, prs contract.PayRecStore) *Handler {
 
 	return &Handler{
 		accountStore:     as,
@@ -22,5 +23,6 @@ func NewHandler(as contract.AccountStore, ts contract.TransactionStore,
 		projectStore:     ps,
 		userStore:        us,
 		mutationStore:    ms,
+		payRecStore:      prs,
 	}
 }

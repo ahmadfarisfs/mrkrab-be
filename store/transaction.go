@@ -59,6 +59,7 @@ func (ac *TransactionStore) GetTransactionDetailsbyCode(transactionCode string) 
 	return ret, err
 }
 
+//CreateTransaction should not be used when using accrual basis !
 func (ac *TransactionStore) CreateTransaction(accountID int, amount int, remarks string) (model.Transaction, error) {
 	var transactionID int
 	//check account must be valid
@@ -71,7 +72,7 @@ func (ac *TransactionStore) CreateTransaction(accountID int, amount int, remarks
 		if ret.Balance+amount < 0 {
 			//cannot do
 
-			return model.Transaction{}, errors.New("Account does not have enough balance")
+			// return model.Transaction{}, errors.New("Account does not have enough balance")
 		}
 	}
 	err = ac.db.Transaction(func(tx *gorm.DB) error {
@@ -102,7 +103,9 @@ func (ac *TransactionStore) CreateTransaction(accountID int, amount int, remarks
 
 func (ac *TransactionStore) CreateTransfer(accountFrom int, accountTo int, amount uint, remarks string) (model.Transaction, error) {
 	var transactionID int
-
+	if accountTo == accountFrom {
+		return model.Transaction{}, errors.New("Cannot Transfer to the same account")
+	}
 	//check both account must be valid
 	ret := []model.Account{}
 	err := ac.db.Model(&model.Account{}).Find(&ret, "id IN (?)", []int{accountFrom, accountTo}).Error
@@ -116,7 +119,7 @@ func (ac *TransactionStore) CreateTransfer(accountFrom int, accountTo int, amoun
 	for _, v := range ret {
 		if v.ID == uint(accountFrom) {
 			if v.Balance < int(amount) {
-				return model.Transaction{}, errors.New("Source Account does not have enough balance")
+				// return model.Transaction{}, errors.New("Source Account does not have enough balance")
 			}
 		}
 	}
@@ -132,6 +135,7 @@ func (ac *TransactionStore) CreateTransfer(accountFrom int, accountTo int, amoun
 			AccountID:     accountFrom,
 			Amount:        -int(amount),
 			TransactionID: int(trxEntry.ID),
+			// Remarks:       "TRF OUT: " + remarks,
 		}).Error; err != nil {
 			return err
 		}
@@ -140,6 +144,7 @@ func (ac *TransactionStore) CreateTransfer(accountFrom int, accountTo int, amoun
 			AccountID:     accountTo,
 			Amount:        int(amount),
 			TransactionID: int(trxEntry.ID),
+			// Remarks:       "TRF IN: " + remarks,
 		}).Error; err != nil {
 			return err
 		}
