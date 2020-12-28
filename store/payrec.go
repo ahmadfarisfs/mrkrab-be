@@ -40,7 +40,7 @@ func (ps *PayRecStore) CreatePayRec(remarks string, amount int, projectID uint, 
 func (ps *PayRecStore) Approve(id uint) (model.PayRec, error) {
 
 	payRecDetails := model.PayRec{}
-	err := ps.db.Model(&model.PayRec{}).Where("id = ?", id).First(&payRecDetails).Error
+	err := ps.db.Model(&model.PayRec{}).Where("id = ? and transaction_code is null", id).First(&payRecDetails).Error
 	if err != nil {
 		return payRecDetails, err
 	}
@@ -100,6 +100,6 @@ func (ps *PayRecStore) ListPayRec(req utils.CommonRequest) ([]model.PayRec, int,
 	log.Println(req)
 	//actually fetch data with limit and offset
 	quer := utils.AppendCommonRequest(initQuery, req)
-	err = quer.Preload("Project").Find(&ret).Error
+	err = quer.Preload("Project").Preload("Pocket").Find(&ret).Error
 	return ret, int(count), err
 }

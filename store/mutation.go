@@ -60,7 +60,7 @@ func (ms *MutationStore) ListMutation(req utils.CommonRequest) ([]model.Mutation
 		Joins("left join budgets on (budgets.account_id=a.id and a.parent_id is not null)"). //akun yang parent id nya tidak null adalah budgets
 		Joins("left join transactions as t on t.id = mutations.transaction_id").
 		Where("prj.id is not null or prj2.id is not null").
-		Order("mutations.created_at asc").Table("mutations").
+		Order("mutations.created_at desc").Table("mutations").
 		Select("mutations.id", " budgets.id as pocket_id", "coalesce(prj.id,prj2.id) as project_id", "coalesce(prj.is_open,prj2.is_open ) as is_open", "mutations.created_at", "mutations.amount ", "t.remarks ", "t.transaction_code ", "coalesce (prj.description,prj2.description )as project_description", "coalesce (prj.name,prj2.name ) as project_name", "budgets.name as pocket_name ", "budgets.`limit` as pocket_limit")
 
 	//find in tabel akun (project)

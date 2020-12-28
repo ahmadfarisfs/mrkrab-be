@@ -19,7 +19,7 @@ func (h *Handler) ListPayRec(c echo.Context) error {
 		log.Println(err)
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	c.Response().Header().Set("Content-Range", "projects "+strconv.Itoa(payload.StartIndex)+"-"+strconv.Itoa(payload.EndIndex)+"/"+strconv.Itoa(totalData))
+	c.Response().Header().Set("Content-Range", "payrecs "+strconv.Itoa(payload.StartIndex)+"-"+strconv.Itoa(payload.EndIndex)+"/"+strconv.Itoa(totalData))
 	return c.JSON(http.StatusOK, res)
 }
 

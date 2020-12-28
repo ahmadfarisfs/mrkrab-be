@@ -45,7 +45,7 @@ func (h *Handler) Register(v1 *echo.Group) {
 	// payRecFroup.DELETE("/:id", h.DeleteUser)
 	payRecFroup.GET("", h.ListPayRec)
 	payRecFroup.POST("", h.CreatePayRec)
-	payRecFroup.GET("/approve/:id", h.Approve)
-	payRecFroup.GET("/reject/:id", h.Reject)
+	payRecFroup.PATCH("/approve/:id", h.Approve)
+	payRecFroup.PATCH("/reject/:id", h.Reject)
 
 }
