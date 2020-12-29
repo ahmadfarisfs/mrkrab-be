@@ -11,6 +11,5 @@ type TransactionStore interface {
 	CreateTransfer(accountFrom int, accountTo int, amount uint, remarks string) (model.Transaction, error)
 	GetTransactionDetailsbyID(transactionID int) (model.Transaction, error)
 	GetTransactionDetailsbyCode(transactionCode string) (model.Transaction, error)
-
 	ListTransaction(req utils.CommonRequest) ([]model.Transaction, int, error)
 }

@@ -208,3 +208,18 @@ func (ca *createPayRecRequest) bind(c echo.Context) error {
 	}
 	return nil
 }
+
+type loginRequest struct {
+	Username string `validate:"required"`
+	Password string `validate:"required"`
+}
+
+func (ca *loginRequest) bind(c echo.Context) error {
+	if err := c.Bind(ca); err != nil {
+		return err
+	}
+	if err := c.Validate(ca); err != nil {
+		return err
+	}
+	return nil
+}
