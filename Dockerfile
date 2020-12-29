@@ -51,6 +51,6 @@ WORKDIR /app
 
 COPY --from=build /app /app/
 
-EXPOSE 8585
+# EXPOSE 8585
 
 CMD ["./mrkrab-be"]
