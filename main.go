@@ -62,5 +62,5 @@ func main() {
 	prs := store.NewPayRecStore(ts, ps, d)
 	h := handler.NewHandler(as, ts, ps, us, ms, prs)
 	h.Register(v1)
-	r.Logger.Fatal(r.Start("127.0.0.1:" + viper.GetString(`service.port`)))
+	r.Logger.Fatal(r.Start("0.0.0.0:" + viper.GetString(`service.port`)))
 }
