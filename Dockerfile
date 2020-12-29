@@ -21,7 +21,7 @@ COPY . /src
 
 # Build components.
 # Put built binaries and runtime resources in /app dir ready to be copied over or used.
-RUN go install -installsuffix cgo -ldflags="-w -s" && \
+RUN go install -v && \
     mkdir -p /app && \
     cp -r $GOPATH/bin/mrkrab-be /app/
 
