@@ -25,7 +25,7 @@ func New() *echo.Echo {
 			// 	return true
 			// }
 			fmt.Println("JWT: " + c.Path())
-			if strings.HasSuffix(c.Path(), "/auth/login") {
+			if strings.HasSuffix(c.Path(), "/auth/login") || strings.HasSuffix(c.Path(), "/auth/test") {
 				return true
 			}
 			return false

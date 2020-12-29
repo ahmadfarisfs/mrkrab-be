@@ -32,6 +32,9 @@ func (h *Handler) Authenticate(c echo.Context) error {
 	return c.JSON(http.StatusUnprocessableEntity, errors.New("Token Expired"))
 
 }
+func (h *Handler) Test(c echo.Context) error {
+	return c.JSON(http.StatusOK, "Hello from mrkrab")
+}
 func (h *Handler) Login(c echo.Context) error {
 	req := &loginRequest{}
 	if err := req.bind(c); err != nil {

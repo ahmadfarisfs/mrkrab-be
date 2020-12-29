@@ -49,6 +49,7 @@ func (h *Handler) Register(v1 *echo.Group) {
 	payRecFroup.PATCH("/reject/:id", h.Reject)
 
 	authGroup := v1.Group("/auth")
+	authGroup.GET("/test", h.Test)
 	authGroup.POST("/login", h.Login)
 	authGroup.POST("/authenticate", h.Authenticate)
 
