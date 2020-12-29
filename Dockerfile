@@ -23,7 +23,7 @@ COPY . /src
 # Put built binaries and runtime resources in /app dir ready to be copied over or used.
 RUN go install -v && \
     mkdir -p /app && \
-    cp -r $GOPATH/bin/mrkrab-be /app/
+    cp -r $GOPATH/bin/krab-core /app/
 
 #
 # 2. Runtime Container
@@ -53,4 +53,4 @@ COPY --from=build /app /app/
 
 # EXPOSE 8585
 
-CMD ["./mrkrab-be"]
+CMD ["./krab-core"]

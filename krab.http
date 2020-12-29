@@ -47,9 +47,10 @@ content-type: application/json
         }
     ]
 }
-
 ###
-POST http://127.0.0.1:8585/api/project/transaction
+GET http://127.0.0.1:8585/api/transactions?filter={"projectIDs":[]}
+###
+POST http://127.0.0.1:8585/api/projects/transactions
 content-type: application/json
 
 {
@@ -104,3 +105,13 @@ content-type: application/json
 ###
 
 DELETE http://127.0.0.1:8585/api/users/9
+###
+GET http://127.0.0.1:8585/api/payrec?range=[0,100]
+###
+POST http://127.0.0.1:8585/api/auth/login
+content-type: application/json
+
+{
+    "Username": "ahmad",
+    "Password": "Akuinginpintar24"
+}
