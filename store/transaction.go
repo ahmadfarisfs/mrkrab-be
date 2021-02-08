@@ -2,6 +2,7 @@ package store
 
 import (
 	"errors"
+	"time"
 
 	"github.com/ahmadfarisfs/krab-core/model"
 	"github.com/ahmadfarisfs/krab-core/utils"
@@ -60,7 +61,7 @@ func (ac *TransactionStore) GetTransactionDetailsbyCode(transactionCode string) 
 }
 
 //CreateTransaction should not be used when using accrual basis !
-func (ac *TransactionStore) CreateTransaction(accountID int, amount int, remarks string) (model.Transaction, error) {
+func (ac *TransactionStore) CreateTransaction(accountID int, amount int, remarks string, trxTime time.Time) (model.Transaction, error) {
 	var transactionID int
 	//check account must be valid
 	ret := model.Account{}
@@ -78,7 +79,7 @@ func (ac *TransactionStore) CreateTransaction(accountID int, amount int, remarks
 	err = ac.db.Transaction(func(tx *gorm.DB) error {
 		//create entry in transaction db
 		trxCode := uuid.New().String()
-		trxEntry := model.Transaction{Remarks: remarks, TransactionCode: trxCode}
+		trxEntry := model.Transaction{Remarks: remarks, TransactionCode: trxCode, TransactionDate: trxTime}
 		if err := tx.Create(&trxEntry).Error; err != nil {
 			return err
 		}

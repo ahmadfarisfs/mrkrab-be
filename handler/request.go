@@ -1,6 +1,10 @@
 package handler
 
-import "github.com/labstack/echo/v4"
+import (
+	"time"
+
+	"github.com/labstack/echo/v4"
+)
 
 type createUserRequest struct {
 	Fullname string `validate:"required"`
@@ -37,9 +41,10 @@ func (ca *createAccountRequest) bind(c echo.Context) error {
 }
 
 type createTransactionRequest struct {
-	AccountID int    `validate:"required"`
-	Amount    int    `validate:"required"`
-	Remarks   string `validate:"required"`
+	AccountID       int       `validate:"required"`
+	Amount          int       `validate:"required"`
+	Remarks         string    `validate:"required"`
+	TransactionDate time.Time `validate:"required"`
 }
 
 func (ca *createTransactionRequest) bind(c echo.Context) error {
@@ -119,13 +124,14 @@ func (ca *updateProjectRequest) bind(c echo.Context) error {
 }
 
 type createProjectTransactionRequest struct {
-	ProjectID int    `validate:"required"`
-	BudgetID  *uint  `validate:"omitempty"`
-	Amount    int    `validate:"required"`
-	Remarks   string `validate:"required"`
-	URL       string `validate:"omitempty"`
-	Notes     string `validate:"omitempty"`
-	Meta      string `validate:"omitempty"`
+	ProjectID       int       `validate:"required"`
+	BudgetID        *uint     `validate:"omitempty"`
+	Amount          int       `validate:"required"`
+	Remarks         string    `validate:"required"`
+	URL             string    `validate:"omitempty"`
+	Notes           string    `validate:"omitempty"`
+	Meta            string    `validate:"omitempty"`
+	TransactionDate time.Time `validate:"required"`
 }
 
 func (ca *createProjectTransactionRequest) bind(c echo.Context) error {

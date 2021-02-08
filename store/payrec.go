@@ -3,6 +3,7 @@ package store
 import (
 	"errors"
 	"log"
+	"time"
 
 	"github.com/ahmadfarisfs/krab-core/contract"
 	"github.com/ahmadfarisfs/krab-core/model"
@@ -67,7 +68,7 @@ func (ps *PayRecStore) Approve(id uint) (model.PayRec, error) {
 		accountID = prjAccountID
 	}
 
-	trx, err := ps.ts.CreateTransaction(int(accountID), payRecDetails.Amount, payRecDetails.Remarks)
+	trx, err := ps.ts.CreateTransaction(int(accountID), payRecDetails.Amount, payRecDetails.Remarks, time.Now())
 	if err != nil {
 		return model.PayRec{}, err
 	}

@@ -172,7 +172,7 @@ func (h *Handler) CreateProjectTransaction(c echo.Context) error {
 		accountID = int(projAccountID)
 	}
 
-	trx, err := h.transactionStore.CreateTransaction(accountID, req.Amount, req.Remarks)
+	trx, err := h.transactionStore.CreateTransaction(accountID, req.Amount, req.Remarks, req.TransactionDate)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
