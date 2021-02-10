@@ -27,6 +27,7 @@ type MutationExtended struct {
 	ProjectName        string
 	PocketName         *string
 	PocketLimit        *int
+	TransactionDate    time.Time
 	// Mutation
 	// Project Project `gorm:"-"`
 	// Budget  *Budget `gorm:"-"`
