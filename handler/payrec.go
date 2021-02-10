@@ -56,7 +56,7 @@ func (h *Handler) CreatePayRec(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	ret, err := h.payRecStore.CreatePayRec(req.Remarks, req.Amount, uint(req.ProjectID), req.BudgetID)
+	ret, err := h.payRecStore.CreatePayRec(req.Remarks, req.Amount, uint(req.ProjectID), req.BudgetID, req.SoD)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}

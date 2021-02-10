@@ -44,6 +44,7 @@ type createTransactionRequest struct {
 	AccountID       int       `validate:"required"`
 	Amount          int       `validate:"required"`
 	Remarks         string    `validate:"required"`
+	SoD             string    `validate:"required"`
 	TransactionDate time.Time `validate:"required"`
 }
 
@@ -131,6 +132,7 @@ type createProjectTransactionRequest struct {
 	URL             string    `validate:"omitempty"`
 	Notes           string    `validate:"omitempty"`
 	Meta            string    `validate:"omitempty"`
+	SoD             string    `validate:"required"`
 	TransactionDate time.Time `validate:"required"`
 }
 
@@ -203,6 +205,7 @@ type createPayRecRequest struct {
 	BudgetID  *uint  `validate:"omitempty"`
 	Remarks   string `validate:"required"`
 	Amount    int    `validate:"required"`
+	SoD       string `validate:"required"`
 }
 
 func (ca *createPayRecRequest) bind(c echo.Context) error {

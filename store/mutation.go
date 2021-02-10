@@ -61,7 +61,7 @@ func (ms *MutationStore) ListMutation(req utils.CommonRequest) ([]model.Mutation
 		Joins("left join transactions as t on t.id = mutations.transaction_id").
 		Where("prj.id is not null or prj2.id is not null").
 		Order("mutations.created_at desc").Table("mutations").
-		Select("transactions.transaction_date", "mutations.id", " budgets.id as pocket_id", "coalesce(prj.id,prj2.id) as project_id", "coalesce(prj.is_open,prj2.is_open ) as is_open", "mutations.created_at", "mutations.amount ", "t.remarks ", "t.transaction_code ", "coalesce (prj.description,prj2.description )as project_description", "coalesce (prj.name,prj2.name ) as project_name", "budgets.name as pocket_name ", "budgets.`limit` as pocket_limit")
+		Select("t.transaction_date", "mutations.id", " budgets.id as pocket_id", "coalesce(prj.id,prj2.id) as project_id", "coalesce(prj.is_open,prj2.is_open ) as is_open", "mutations.created_at", "mutations.amount ", "t.remarks ", "t.transaction_code ", "coalesce (prj.description,prj2.description )as project_description", "coalesce (prj.name,prj2.name ) as project_name", "budgets.name as pocket_name ", "budgets.`limit` as pocket_limit", "mutations.so_d as so_d")
 
 	//find in tabel akun (project)
 	// projectDetails := []model.Project{}

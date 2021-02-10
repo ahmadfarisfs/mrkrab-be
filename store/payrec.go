@@ -25,12 +25,13 @@ func NewPayRecStore(ts contract.TransactionStore, ps contract.ProjectStore, db *
 	}
 }
 
-func (ps *PayRecStore) CreatePayRec(remarks string, amount int, projectID uint, pocketID *uint) (model.PayRec, error) {
+func (ps *PayRecStore) CreatePayRec(remarks string, amount int, projectID uint, pocketID *uint, SoD string) (model.PayRec, error) {
 	data := model.PayRec{
 		Remarks:   remarks,
 		Amount:    amount,
 		ProjectID: projectID,
 		PocketID:  pocketID,
+		SoD:       SoD,
 	}
 	err := ps.db.Model(&model.PayRec{}).Create(&data).Error
 	if err != nil {
@@ -41,7 +42,8 @@ func (ps *PayRecStore) CreatePayRec(remarks string, amount int, projectID uint, 
 func (ps *PayRecStore) Approve(id uint) (model.PayRec, error) {
 
 	payRecDetails := model.PayRec{}
-	err := ps.db.Model(&model.PayRec{}).Where("id = ? and transaction_code is null", id).First(&payRecDetails).Error
+	err := ps.db.Model(&model.PayRec{}).Where("id = ? and transaction_code is null", id).
+		First(&payRecDetails).Error
 	if err != nil {
 		return payRecDetails, err
 	}
@@ -68,7 +70,11 @@ func (ps *PayRecStore) Approve(id uint) (model.PayRec, error) {
 		accountID = prjAccountID
 	}
 
-	trx, err := ps.ts.CreateTransaction(int(accountID), payRecDetails.Amount, payRecDetails.Remarks, time.Now())
+	trx, err := ps.ts.CreateTransaction(int(accountID),
+		payRecDetails.Amount,
+		payRecDetails.Remarks,
+		payRecDetails.SoD,
+		time.Now())
 	if err != nil {
 		return model.PayRec{}, err
 	}

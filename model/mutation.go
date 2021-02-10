@@ -11,7 +11,7 @@ type Mutation struct {
 	TransactionID int
 	Transaction   Transaction `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Amount        int         //deltas
-
+	SoD           string
 }
 
 type MutationExtended struct {
@@ -28,6 +28,7 @@ type MutationExtended struct {
 	PocketName         *string
 	PocketLimit        *int
 	TransactionDate    time.Time
+	SoD                string
 	// Mutation
 	// Project Project `gorm:"-"`
 	// Budget  *Budget `gorm:"-"`

@@ -61,7 +61,7 @@ func (ac *TransactionStore) GetTransactionDetailsbyCode(transactionCode string) 
 }
 
 //CreateTransaction should not be used when using accrual basis !
-func (ac *TransactionStore) CreateTransaction(accountID int, amount int, remarks string, trxTime time.Time) (model.Transaction, error) {
+func (ac *TransactionStore) CreateTransaction(accountID int, amount int, remarks string, SoD string, trxTime time.Time) (model.Transaction, error) {
 	var transactionID int
 	//check account must be valid
 	ret := model.Account{}
@@ -79,7 +79,11 @@ func (ac *TransactionStore) CreateTransaction(accountID int, amount int, remarks
 	err = ac.db.Transaction(func(tx *gorm.DB) error {
 		//create entry in transaction db
 		trxCode := uuid.New().String()
-		trxEntry := model.Transaction{Remarks: remarks, TransactionCode: trxCode, TransactionDate: trxTime}
+		trxEntry := model.Transaction{
+			Remarks:         remarks,
+			TransactionCode: trxCode,
+			TransactionDate: trxTime,
+		}
 		if err := tx.Create(&trxEntry).Error; err != nil {
 			return err
 		}
@@ -88,6 +92,7 @@ func (ac *TransactionStore) CreateTransaction(accountID int, amount int, remarks
 			AccountID:     accountID,
 			Amount:        amount,
 			TransactionID: int(trxEntry.ID),
+			SoD:           SoD,
 		}).Error; err != nil {
 			return err
 		}
@@ -117,13 +122,20 @@ func (ac *TransactionStore) CreateTransfer(accountFrom int, accountTo int, amoun
 		return model.Transaction{}, errors.New("Invalid Account ID")
 	}
 	//check amount
+	accountFromDetails := model.Account{}
+	accountToDetails := model.Account{}
 	for _, v := range ret {
 		if v.ID == uint(accountFrom) {
+			accountFromDetails = v
 			if v.Balance < int(amount) {
 				// return model.Transaction{}, errors.New("Source Account does not have enough balance")
 			}
+		} else {
+			//accounto
+			accountToDetails = v
 		}
 	}
+	//	ac.db.Model((&model.Account))
 	err = ac.db.Transaction(func(tx *gorm.DB) error {
 		//create entry in transaction db
 		trxCode := uuid.New().String()
@@ -136,6 +148,7 @@ func (ac *TransactionStore) CreateTransfer(accountFrom int, accountTo int, amoun
 			AccountID:     accountFrom,
 			Amount:        -int(amount),
 			TransactionID: int(trxEntry.ID),
+			SoD:           accountToDetails.AccountName, //trf to account name
 			// Remarks:       "TRF OUT: " + remarks,
 		}).Error; err != nil {
 			return err
@@ -145,6 +158,7 @@ func (ac *TransactionStore) CreateTransfer(accountFrom int, accountTo int, amoun
 			AccountID:     accountTo,
 			Amount:        int(amount),
 			TransactionID: int(trxEntry.ID),
+			SoD:           accountFromDetails.AccountName,
 			// Remarks:       "TRF IN: " + remarks,
 		}).Error; err != nil {
 			return err

@@ -60,7 +60,7 @@ func (h *Handler) CreateTransaction(c echo.Context) error {
 	if err := req.bind(c); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
-	ac, err := h.transactionStore.CreateTransaction(req.AccountID, req.Amount, req.Remarks, req.TransactionDate)
+	ac, err := h.transactionStore.CreateTransaction(req.AccountID, req.Amount, req.Remarks, req.SoD, req.TransactionDate)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}

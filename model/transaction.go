@@ -9,4 +9,5 @@ type Transaction struct {
 	IsTransfer      bool
 	Mutation        []Mutation `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	TransactionDate time.Time
+	// SoD             string
 }

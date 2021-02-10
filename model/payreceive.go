@@ -9,5 +9,6 @@ type PayRec struct {
 	PocketID        *uint
 	Pocket          *Budget `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Amount          int
+	SoD             string
 	Email           string
 }
