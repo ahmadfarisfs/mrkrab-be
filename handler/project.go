@@ -243,7 +243,7 @@ func (h *Handler) CreateProjectTransfer(c echo.Context) error {
 		targetAccount = int(bgt.AccountID)
 	}
 
-	ret, err := h.transactionStore.CreateTransfer(sourceAccount, targetAccount, req.Amount, "TRF: "+req.Remarks)
+	ret, err := h.transactionStore.CreateTransfer(sourceAccount, targetAccount, req.Amount, "TRF: "+req.Remarks, req.TrxDate)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}

@@ -73,7 +73,7 @@ func (h *Handler) CreateTransfer(c echo.Context) error {
 	if err := req.bind(c); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
-	ac, err := h.transactionStore.CreateTransfer(req.AccountFrom, req.AccountTo, req.Amount, req.Remarks)
+	ac, err := h.transactionStore.CreateTransfer(req.AccountFrom, req.AccountTo, req.Amount, req.Remarks, req.TransactionDate)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}

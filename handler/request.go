@@ -59,10 +59,11 @@ func (ca *createTransactionRequest) bind(c echo.Context) error {
 }
 
 type createTransferRequest struct {
-	AccountFrom int    `validate:"required"`
-	AccountTo   int    `validate:"required"`
-	Amount      uint   `validate:"required"`
-	Remarks     string `validate:"required"`
+	AccountFrom     int       `validate:"required"`
+	AccountTo       int       `validate:"required"`
+	Amount          uint      `validate:"required"`
+	Remarks         string    `validate:"required"`
+	TransactionDate time.Time `validate:"required"`
 }
 
 func (ca *createTransferRequest) bind(c echo.Context) error {
@@ -152,11 +153,12 @@ type createProjectTransferRequest struct {
 	ProjectIDTarget int   `validate:"required"`
 	BudgetIDTarget  *uint `validate:"omitempty"`
 
-	Amount  uint   `validate:"required"`
-	Remarks string `validate:"required"`
-	URL     string `validate:"omitempty"`
-	Notes   string `validate:"omitempty"`
-	Meta    string `validate:"omitempty"`
+	Amount  uint      `validate:"required"`
+	Remarks string    `validate:"required"`
+	URL     string    `validate:"omitempty"`
+	Notes   string    `validate:"omitempty"`
+	Meta    string    `validate:"omitempty"`
+	TrxDate time.Time `validate:"required"`
 }
 
 func (ca *createProjectTransferRequest) bind(c echo.Context) error {
