@@ -107,7 +107,7 @@ func (ac *TransactionStore) CreateTransaction(accountID int, amount int, remarks
 	return ac.GetTransactionDetailsbyID(transactionID)
 }
 
-func (ac *TransactionStore) CreateTransfer(accountFrom int, accountTo int, amount uint, remarks string, trxDate time.Time) (model.Transaction, error) {
+func (ac *TransactionStore) CreateTransfer(accountFrom int, accountTo int, amount uint, remarks string, trxDate time.Time, isTransfer bool) (model.Transaction, error) {
 	var transactionID int
 	if accountTo == accountFrom {
 		return model.Transaction{}, errors.New("Cannot Transfer to the same account")
@@ -139,7 +139,7 @@ func (ac *TransactionStore) CreateTransfer(accountFrom int, accountTo int, amoun
 	err = ac.db.Transaction(func(tx *gorm.DB) error {
 		//create entry in transaction db
 		trxCode := uuid.New().String()
-		trxEntry := model.Transaction{Remarks: remarks, TransactionCode: trxCode, TransactionDate: trxDate}
+		trxEntry := model.Transaction{IsTransfer: isTransfer, Remarks: remarks, TransactionCode: trxCode, TransactionDate: trxDate}
 		if err := tx.Create(&trxEntry).Error; err != nil {
 			return err
 		}

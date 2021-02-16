@@ -3,6 +3,7 @@ package handler
 //project should be nowehere here, it should be on higher level
 import (
 	"log"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -83,9 +84,37 @@ func (h *Handler) CreateProject(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	accIDProjUint := uint(ac.AccountID)
 
+	generalAccountName := "PROJECT-" + strings.ToUpper(req.Name) + "-GENERAL-" + strconv.Itoa(int(time.Now().Unix()))
+
+	//create default expense account
+	account, err = h.accountStore.CreateAccount(generalAccountName, &accIDProjUint)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	//create pocket on general
+	_, err = h.projectStore.CreatePocket(int(ac.ID), "General", account.ID, req.TotalBudget)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	// //create default income account
+	// incomeAccountName := "PROJECT-" + strings.ToUpper(req.Name) + "-GENERAL-" + strconv.Itoa(int(time.Now().Unix()))
+
+	// account, err = h.accountStore.CreateAccount(incomeAccountName, &accIDProjUint)
+	// if err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, err.Error())
+	// }
+	// //create pocket on general
+	// _, err = h.projectStore.CreatePocket(int(ac.ID), "General", account.ID, req.TotalBudget)
+	// if err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, err.Error())
+	// }
+
+	//create other accounts
 	for _, p := range req.Budgets {
-		accIDProjUint := uint(ac.AccountID)
+
 		//create account for pocket
 		pocketName := "PROJECT-" + strings.ToUpper(req.Name) + "-" + strings.ToUpper(p.Name) + "-" + strconv.Itoa(int(time.Now().Unix()))
 		account, err = h.accountStore.CreateAccount(pocketName, &accIDProjUint)
@@ -144,40 +173,55 @@ func (h *Handler) CreateProjectTransaction(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	var accountID int
-	if req.BudgetID != nil {
-		//check that account should be under projects
-		isValid := false
-		for _, v := range budgetAccountIDs {
-			if v == *req.BudgetID {
-				//good
-				isValid = true
-			}
+
+	if req.Amount > 0 {
+		//income can only come from REVENUE ACCOUNT with prefix name: ACCOUNT-REVENUE and id 0
+		// to projects
+		//find revenue account
+		trx, err := h.transactionStore.CreateTransfer(0, int(projAccountID), uint(math.Abs(float64(req.Amount))), req.Remarks, req.TransactionDate, false)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		if !isValid {
-			return c.JSON(http.StatusInternalServerError, "Invalid budget ID")
-		}
-		//harus transalate dari budgetID ke accountID
-		isValid = false
-		for _, budget := range proj.Budgets {
-			if budget.ID == uint(*req.BudgetID) {
-				accountID = int(budget.AccountID)
-				isValid = true
-			}
-		}
-		if !isValid {
-			return c.JSON(http.StatusInternalServerError, "Invalid budget account ID")
-		}
+		return c.JSON(http.StatusOK, trx)
 	} else {
-		accountID = int(projAccountID)
+		//expense
+		var accountID int
+		if req.BudgetID != nil {
+			//check that account should be under projects
+			isValid := false
+			for _, v := range budgetAccountIDs {
+				if v == *req.BudgetID {
+					//good
+					isValid = true
+				}
+			}
+			if !isValid {
+				return c.JSON(http.StatusInternalServerError, "Invalid budget ID")
+			}
+			//harus transalate dari budgetID ke accountID
+			isValid = false
+			for _, budget := range proj.Budgets {
+				if budget.ID == uint(*req.BudgetID) {
+					accountID = int(budget.AccountID)
+					isValid = true
+				}
+			}
+			if !isValid {
+				return c.JSON(http.StatusInternalServerError, "Invalid budget account ID")
+			}
+		} else {
+			return c.JSON(http.StatusInternalServerError, "Expense account must be defined")
+			// accountID = int(projAccountID)
+		}
+		trx, err := h.transactionStore.CreateTransfer(int(projAccountID), accountID, uint(math.Abs(float64(req.Amount))), req.Remarks, req.TransactionDate, false)
+		// trx, err := h.transactionStore.CreateTransaction(accountID, req.Amount, req.Remarks, req.SoD, req.TransactionDate)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		return c.JSON(http.StatusOK, trx)
 	}
 
-	trx, err := h.transactionStore.CreateTransaction(accountID, req.Amount, req.Remarks, req.SoD, req.TransactionDate)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
-
-	return c.JSON(http.StatusOK, trx)
 }
 
 func (h *Handler) CreateProjectTransfer(c echo.Context) error {
@@ -193,6 +237,14 @@ func (h *Handler) CreateProjectTransfer(c echo.Context) error {
 	if !isSameProject && trfDir != ProjectToProject {
 		//illegal
 		return c.JSON(http.StatusUnauthorized, "Pocket can only transfered to parent project")
+	}
+	if isSameProject && trfDir == ProjectToPocket {
+		//illegal
+		return c.JSON(http.StatusUnauthorized, "Cannot transfer project to pocket")
+	}
+	if isSameProject && trfDir == PocketToProject {
+		//illegal
+		return c.JSON(http.StatusUnauthorized, "Cannot transfer pocket to project")
 	}
 
 	//get project and its accounts
@@ -243,7 +295,7 @@ func (h *Handler) CreateProjectTransfer(c echo.Context) error {
 		targetAccount = int(bgt.AccountID)
 	}
 
-	ret, err := h.transactionStore.CreateTransfer(sourceAccount, targetAccount, req.Amount, "TRF: "+req.Remarks, req.TrxDate)
+	ret, err := h.transactionStore.CreateTransfer(sourceAccount, targetAccount, req.Amount, "TRF: "+req.Remarks, req.TrxDate, true)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -276,4 +328,22 @@ func (h *Handler) UpdateProject(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, prj)
+}
+
+func (h *Handler) GetProjectAnalysis(c echo.Context) error {
+	projectID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	//rewrite commonrequest inject using context to pass id
+	res, err := h.projectStore.GetProjectAnalysis(projectID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	if len(res) == 0 {
+		return c.JSON(http.StatusNotFound, nil)
+
+	}
+	return c.JSON(http.StatusOK, res)
 }

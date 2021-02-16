@@ -14,4 +14,6 @@ type ProjectStore interface {
 	ListProject(req utils.CommonRequest) ([]model.Project, int, error)
 	UpdateProject(prj model.Project) error
 	DeleteProject(id int) error
+
+	GetProjectAnalysis(id int) (map[string]interface{}, error)
 }

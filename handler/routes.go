@@ -25,6 +25,8 @@ func (h *Handler) Register(v1 *echo.Group) {
 
 	prjGroup := v1.Group("/projects")
 	prjGroup.GET("/:id", h.GetProject)
+	prjGroup.GET("/financial/:id", h.GetProjectAnalysis)
+
 	prjGroup.GET("", h.ListProject)
 	prjGroup.POST("", h.CreateProject)
 	prjGroup.DELETE("/:id", h.DeleteProject)

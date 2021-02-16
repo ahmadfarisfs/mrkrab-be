@@ -2,6 +2,7 @@ package store
 
 import (
 	"log"
+	"math"
 
 	"github.com/ahmadfarisfs/krab-core/model"
 	"github.com/ahmadfarisfs/krab-core/utils"
@@ -96,4 +97,55 @@ func (ps *ProjectStore) UpdateProject(prj model.Project) error {
 		editPayload["description"] = prj.Description
 	}
 	return ps.db.Model(&model.Project{}).Where("id = ?", prj.ID).Updates(editPayload).Error
+}
+func (ps *ProjectStore) GetProjectAnalysis(id int) (map[string]interface{}, error) {
+	prj, accountID, _, err := ps.GetProjectDetails(id)
+	if err != nil {
+		return nil, err
+	}
+	accountDet := model.Account{}
+	err = ps.db.Model(&model.Account{}).Where("id = ?", accountID).First(&accountDet).Error
+	if err != nil {
+		return nil, err
+	}
+	subAccountsDet := []model.Account{}
+	err = ps.db.Model(&model.Account{}).Where("parent_id is not null and parent_id = ?", accountDet.ID).
+		Find(&subAccountsDet).Error
+	if err != nil {
+		return nil, err
+	}
+	pocketTotalExpense := 0
+	pocketTotalIncome := 0
+	for _, v := range subAccountsDet {
+		pocketTotalExpense += v.TotalExpense
+		pocketTotalIncome += v.TotalIncome
+	}
+	payRec := []model.PayRec{}
+	err = ps.db.Model(&model.PayRec{}).Where("project_id = ? ", id).Find(&payRec).Error
+	if err != nil {
+		return nil, err
+	}
+	totalPayables := 0
+	totalReceivables := 0
+	for _, v := range payRec {
+		if v.Amount < 0 {
+			totalPayables += int(math.Abs(float64(v.Amount)))
+		} else {
+			totalReceivables += int(math.Abs(float64(v.Amount)))
+		}
+	}
+
+	//seharusnya tidak ada transfer dari project ke pocket
+	retDat := map[string]interface{}{
+		// "ProjectTotalExpense": accountDet.TotalExpense,
+		// "ProjectTotalIncome":  accountDet.TotalIncome,
+		// "General":             accountDet,
+		"Project":          prj,
+		"ProjectAccount":   accountDet,
+		"Pockets":          subAccountsDet,
+		"TotalPayables":    totalPayables,
+		"TotalReceivables": totalReceivables,
+	}
+
+	return retDat, nil
 }

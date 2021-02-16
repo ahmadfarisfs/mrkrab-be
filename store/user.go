@@ -2,6 +2,9 @@ package store
 
 import (
 	"log"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/ahmadfarisfs/krab-core/model"
 	"github.com/ahmadfarisfs/krab-core/utils"
@@ -26,8 +29,17 @@ func (ps *UserStore) CreateUser(name string, username string, password string, e
 	if err != nil {
 		return model.User{}, err
 	}
+	//TODO: use transaction
 	ret := model.User{Fullname: name, Username: username, Role: role, Email: email, Password: string(hashedPassword)}
 	err = ps.db.Model(&model.User{}).Create(&ret).Error
+	if err != nil {
+		return model.User{}, err
+	}
+
+	//create account
+	err = ps.db.Model(&model.Account{}).Create(&model.Account{
+		AccountName: "USER-" + strings.ToUpper(username) + "-" + strconv.Itoa(int(time.Now().Unix())),
+	}).Error
 	if err != nil {
 		return model.User{}, err
 	}

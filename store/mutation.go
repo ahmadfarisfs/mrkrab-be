@@ -59,9 +59,13 @@ func (ms *MutationStore) ListMutation(req utils.CommonRequest) ([]model.Mutation
 		Joins("left join projects as prj2 on (a2.id = prj2.account_id)").
 		Joins("left join budgets on (budgets.account_id=a.id and a.parent_id is not null)"). //akun yang parent id nya tidak null adalah budgets
 		Joins("left join transactions as t on t.id = mutations.transaction_id").
-		Where("prj.id is not null or prj2.id is not null").
+		Where("(prj.id is not null or prj2.id is not null)AND (budgets.name IS NOT NULL or mutations.amount > 0  ) OR (t.is_transfer=1 AND (prj.id is not null or prj2.id is not NULL))").
 		Order("mutations.created_at desc").Table("mutations").
-		Select("t.transaction_date", "mutations.id", " budgets.id as pocket_id", "coalesce(prj.id,prj2.id) as project_id", "coalesce(prj.is_open,prj2.is_open ) as is_open", "mutations.created_at", "mutations.amount ", "t.remarks ", "t.transaction_code ", "coalesce (prj.description,prj2.description )as project_description", "coalesce (prj.name,prj2.name ) as project_name", "budgets.name as pocket_name ", "budgets.`limit` as pocket_limit", "mutations.so_d as so_d")
+		Select("t.transaction_date", "mutations.id", " budgets.id as pocket_id", "coalesce(prj.id,prj2.id) as project_id",
+			"coalesce(prj.is_open,prj2.is_open ) as is_open", "mutations.created_at", "(case when budgets.name IS NULL then mutations.amount ELSE -mutations.amount END ) AS amount",
+			"t.remarks ", "t.transaction_code ", "coalesce (prj.description,prj2.description )as project_description",
+			"coalesce (prj.name,prj2.name ) as project_name", "budgets.name as pocket_name ",
+			"budgets.`limit` as pocket_limit", "mutations.so_d as so_d", "t.is_transfer")
 
 	//find in tabel akun (project)
 	// projectDetails := []model.Project{}

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -53,7 +54,31 @@ func AutoMigrate(db *gorm.DB) {
 		&model.User{},
 		&model.PayRec{},
 	)
+
 	if err != nil {
 		panic("Error migration" + err.Error())
 	}
+	res := model.Account{}
+	err = db.Model(&model.Account{}).Where("account_name = 'ACCOUNT-REVENUE'").First(&res).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+
+		err = db.Exec("INSERT INTO `accounts`(`id`,`account_name`) VALUES(0,'ACCOUNT-REVENUE')").Error
+		if err != nil {
+			panic("Error create revenue account" + err.Error())
+		}
+
+		err = db.Exec("UPDATE accounts SET ID=0 WHERE account_name='ACCOUNT-REVENUE'").Error
+		if err != nil {
+			panic("Error create revenue account update id" + err.Error())
+		}
+	} else {
+		//found, check id has to be 0
+		if res.ID != 0 {
+			err = db.Exec("UPDATE accounts SET ID=0 WHERE account_name='ACCOUNT-REVENUE'").Error
+			if err != nil {
+				panic("Error [2] create revenue account update id" + err.Error())
+			}
+		}
+	}
+
 }
