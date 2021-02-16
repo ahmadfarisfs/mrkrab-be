@@ -103,6 +103,11 @@ func (ps *ProjectStore) GetProjectAnalysis(id int) (map[string]interface{}, erro
 	if err != nil {
 		return nil, err
 	}
+	budgets := []model.Budget{}
+	err = ps.db.Model(&model.Budget{}).Preload("Account").Where("project_id = ?", id).Find(&budgets).Error
+	if err != nil {
+		return nil, err
+	}
 	accountDet := model.Account{}
 	err = ps.db.Model(&model.Account{}).Where("id = ?", accountID).First(&accountDet).Error
 	if err != nil {
@@ -145,6 +150,7 @@ func (ps *ProjectStore) GetProjectAnalysis(id int) (map[string]interface{}, erro
 		"Pockets":          subAccountsDet,
 		"TotalPayables":    totalPayables,
 		"TotalReceivables": totalReceivables,
+		"Budgets":          budgets,
 	}
 
 	return retDat, nil

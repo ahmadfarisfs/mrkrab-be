@@ -18,6 +18,6 @@ type Budget struct {
 	ProjectID uint
 	Project   Project `json:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	AccountID uint
-	Account   Account `json:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Account   Account `json:"Account" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Limit     *uint
 }
