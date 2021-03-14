@@ -8,5 +8,5 @@ type User struct {
 	Password  string `json:"-"`
 	Email     string `gorm:"unique"`
 	Account   *Account
-	AccountID *int
+	AccountID uint
 }

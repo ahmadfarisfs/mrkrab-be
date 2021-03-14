@@ -1,21 +1,33 @@
-POST http://127.0.0.1:8585/api/account/
+@jtwToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjowLCJleHAiOjE2MTU5NTQyMzMsImlkIjozNiwibmFtZSI6IkVnYSIsInJvbGUiOiJhZG1pbiIsInVzZXJuYW1lIjoiZWdhIn0.Afnmz1NNnTDD4qePK_VE9b_RHQGG2CgTSyhLORCmSO8
+###
+POST http://127.0.0.1:8585/api/account/bank
 content-type: application/json
+Authorization: Bearer {{jtwToken}}
 
 {
-    "Name": "PROJECT-FTW-FIRMWARE",
-    "ParentAccount": 14
+    "Internal": false,
+    "BankName": "BRI",
+    "BankNumber":"898911111",
+    "BankHolderName":"Tokopedia"
+}
+###
+POST http://127.0.0.1:8585/api/account/financial
+content-type: application/json
+Authorization: Bearer {{jtwToken}}
+
+{
+    "Name": "Interest",
+    "AccountType":"INCOME"
 }
 
 ###
-GET http://127.0.0.1:8585/api/account?limit=5&offset=4
-###
 
-GET http://127.0.0.1:8585/api/account/33
-
+GET http://127.0.0.1:8585/api/account/100
+Authorization: Bearer {{jtwToken}}
 ###
 POST http://127.0.0.1:8585/api/transaction/
 content-type: application/json
-
+Authorization: Bearer {{jtwToken}}
 {
     "AccountID": 32,
     "Amount": -100000,
@@ -29,37 +41,35 @@ GET http://127.0.0.1:8585/api/projects/1
 
 ###
 GET http://127.0.0.1:8585/api/projects?range=[0,10]
-
+Authorization: Bearer {{jtwToken}}
 ###
 POST http://127.0.0.1:8585/api/projects
 content-type: application/json
+Authorization: Bearer {{jtwToken}}
 
 {
-    "Name": "SDF Kedua",
+    "Name": "SDF Ke5",
     "TotalBudget": 50000000,
-    "Description":"Psadsad",
-    "Budgets":[
-        {
-            "Name":"Mechanical",
-            "Budget":null
-        },
-        {
-            "Name":"Electrical",
-            "Budget":1000000
-        }
-    ]
+    "Description":"Psadsad"
 }
 ###
 GET http://127.0.0.1:8585/api/transactions?filter={"projectIDs":[]}
 ###
-POST http://127.0.0.1:8585/api/projects/transactions
+POST http://127.0.0.1:8585/api/projects/transaction
 content-type: application/json
+Authorization: Bearer {{jtwToken}}
 
 {
-    "ProjectID": 1,
-    "BudgetID": null,
-    "Amount":11000,
-    "Remarks":"Halo"
+    "ProjectID": 35,
+    "Amount":6500,
+    "Remarks":"biaya admin sdf bayar ke toped",
+    "TransactionDate":"2021-03-14T00:10:50+00:00",
+    "Notes":"",
+    "Meta":"",
+    "SourceProjectAccountID":90,
+    "DestProjectAccountID":96,
+    "SourceBankAccountID":101,
+    "DestBankAccountID":102
 }
 
 ###
@@ -93,13 +103,14 @@ GET http://127.0.0.1:8585/api/users?range=[0,100]
 
 ###
 POST http://127.0.0.1:8585/api/users
-content-type: application/json
+Content-Type: application/json
+Authorization: Bearer {{jtwToken}}
 
 {
-    "Fullname": "Bambang2",
-    "Username": "bambang_22",
-    "Password":"firmawafasfasfasfe",
-    "Email":"bambangf@joko.kom",
+    "Fullname": "Ega",
+    "Username": "ega",
+    "Password":"egabambang",
+    "Email":"ega@ega.com",
     "Role":"admin"
 }
 
@@ -114,8 +125,8 @@ POST http://127.0.0.1:8585/api/auth/login
 content-type: application/json
 
 {
-    "Username": "ahmad",
-    "Password": "Akuinginpintar24"
+    "Username": "ega",
+    "Password": "egabambang"
 }
 
 ###

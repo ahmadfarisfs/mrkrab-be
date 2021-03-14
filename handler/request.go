@@ -24,11 +24,45 @@ func (ca *createUserRequest) bind(c echo.Context) error {
 	return nil
 }
 
+type createProjectAccountRequest struct {
+	Name        string `validate:"required"`
+	AccountType string `validate:"oneof=EXPENSE INCOME"` //expense or income
+	Meta        string `validate:"omitempty"`
+}
+
+func (ca *createProjectAccountRequest) bind(c echo.Context) error {
+	if err := c.Bind(ca); err != nil {
+		return err
+	}
+	if err := c.Validate(ca); err != nil {
+		return err
+	}
+	return nil
+}
+
+type createBankAccountRequest struct {
+	BankName       string `validate:"required"`
+	BankNumber     string `validate:"required"`
+	BankHoldername string `validate:"required"`
+	Internal       bool
+	Meta           string `validate:"omitempty"`
+}
+
+func (ca *createBankAccountRequest) bind(c echo.Context) error {
+	if err := c.Bind(ca); err != nil {
+		return err
+	}
+	if err := c.Validate(ca); err != nil {
+		return err
+	}
+	return nil
+}
+
 type createAccountRequest struct {
 	Name          string `validate:"required"`
 	ParentAccount *uint  `validate:"omitempty"`
 	Meta          string `validate:"omitempty"`
-	AccountType   string `validate:"oneof=BANK EXPENSE PROJECT REVENUE"`
+	AccountType   string `validate:"oneof=BANK EXPENSE PROJECT INCOME"`
 }
 
 func (ca *createAccountRequest) bind(c echo.Context) error {

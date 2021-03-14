@@ -65,6 +65,12 @@ func (h *Handler) Login(c echo.Context) error {
 	// if len(account) != 1 {
 	// 	return c.JSON(http.StatusUnauthorized, "Wrong username/password combination")
 	// }
-	token := utils.GenerateJWT(account[0].BaseModel.ID, account[0].Role, account[0].Fullname, account[0].Username, int(account[0].Account.ID))
+	var accountID int
+	if account[0].Account == nil {
+		accountID = 0
+	} else {
+		accountID = int(account[0].Account.ID)
+	}
+	token := utils.GenerateJWT(account[0].BaseModel.ID, account[0].Role, account[0].Fullname, account[0].Username, accountID)
 	return c.JSON(http.StatusOK, token)
 }

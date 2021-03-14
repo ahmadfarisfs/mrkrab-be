@@ -13,6 +13,7 @@ type Mutation struct {
 	TransactionCode string      //redundant by design
 	Amount          int
 	Meta            string
+	TransactionType string //redundant by design
 }
 
 type MutationExtended struct {
@@ -29,7 +30,7 @@ type MutationExtended struct {
 	PocketName         *string
 	PocketLimit        *int
 	TransactionDate    time.Time
-	SoD                string
+	// SoD                string
 	// Mutation
 	// Project Project `gorm:"-"`
 	// Budget  *Budget `gorm:"-"`

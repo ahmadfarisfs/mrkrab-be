@@ -51,7 +51,7 @@ func (ps *ProjectStore) CreateProject(name string, budget *uint, description str
 				return err
 			}
 		}
-		prjID = ret.ID
+		prjID = rets.ID
 		return nil
 	})
 	if err != nil {

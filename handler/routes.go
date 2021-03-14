@@ -10,15 +10,18 @@ func (h *Handler) Register(v1 *echo.Group) {
 	//	v1.Use(utils.ParseCommonMiddleware)
 	accountGroup := v1.Group("/account")
 	accountGroup.POST("", h.RegisterAccount)
+	accountGroup.POST("/bank", h.CreateBankAccount)
+	accountGroup.POST("/financial", h.CreateProjectAccount)
+
 	accountGroup.GET("/:id", h.ViewAccountSummary)
 	accountGroup.GET("", h.ListAccount)
 	//accountGroup.GET("/mutation", h.ViewMutation)
 
-	trxGroup := v1.Group("/transactions")
-	//shortcut - only valid for cash transaction (assets and expenses)
-	trxGroup.POST("/create", h.CreateTransaction)
-	trxGroup.GET("/:id", h.ViewTransactionDetails)
-	trxGroup.GET("", h.ListMutation)
+	// trxGroup := v1.Group("/transactions")
+	// //shortcut - only valid for cash transaction (assets and expenses)
+	// trxGroup.POST("/create", h.CreateTransaction)
+	// trxGroup.GET("/:id", h.ViewTransactionDetails)
+	// trxGroup.GET("", h.ListMutation)
 
 	// trfGroup := v1.Group("/transfer")
 	// trfGroup.POST("", h.CreateTransfer)

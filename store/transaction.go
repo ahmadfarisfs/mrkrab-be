@@ -134,7 +134,7 @@ func (ac *TransactionStore) CreateBankTransaction(sourceBankAccountID uint, dest
 			TransactionCode: trxCode,
 			Notes:           notes,
 			Meta:            meta,
-			TransactionType: "BOTH",
+			TransactionType: "BANK",
 			TransactionDate: trxDate,
 		}
 		if err := tx.Create(&trxEntry).Error; err != nil {
@@ -148,6 +148,7 @@ func (ac *TransactionStore) CreateBankTransaction(sourceBankAccountID uint, dest
 			TransactionCode: trxCode,
 			Amount:          -int(amount),
 			Meta:            meta,
+			TransactionType: "BANK",
 		}
 		if err := tx.Create(&mutationEntryBankSource).Error; err != nil {
 			return err
@@ -158,6 +159,7 @@ func (ac *TransactionStore) CreateBankTransaction(sourceBankAccountID uint, dest
 			TransactionCode: trxCode,
 			Amount:          int(amount),
 			Meta:            meta,
+			TransactionType: "BANK",
 		}
 		if err := tx.Create(&mutationEntryBankTarget).Error; err != nil {
 			return err
@@ -242,6 +244,7 @@ func (ac *TransactionStore) CreateProjectTransaction(sourceIncomeAccountID uint,
 			TransactionCode: trxCode,
 			Amount:          -int(amount),
 			Meta:            meta,
+			TransactionType: "PROJECT",
 		}
 		if err := tx.Create(&mutationEntrySource).Error; err != nil {
 			return err
@@ -252,6 +255,7 @@ func (ac *TransactionStore) CreateProjectTransaction(sourceIncomeAccountID uint,
 			TransactionCode: trxCode,
 			Amount:          int(amount),
 			Meta:            meta,
+			TransactionType: "PROJECT",
 		}
 		if err := tx.Create(&mutationEntryTarget).Error; err != nil {
 			return err
@@ -264,6 +268,7 @@ func (ac *TransactionStore) CreateProjectTransaction(sourceIncomeAccountID uint,
 			TransactionCode: trxCode,
 			Amount:          -int(amount),
 			Meta:            meta,
+			TransactionType: "BANK",
 		}
 		if err := tx.Create(&mutationEntryBankSource).Error; err != nil {
 			return err
@@ -274,6 +279,7 @@ func (ac *TransactionStore) CreateProjectTransaction(sourceIncomeAccountID uint,
 			TransactionCode: trxCode,
 			Amount:          int(amount),
 			Meta:            meta,
+			TransactionType: "BANK",
 		}
 		if err := tx.Create(&mutationEntryBankTarget).Error; err != nil {
 			return err

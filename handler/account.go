@@ -4,22 +4,53 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/ahmadfarisfs/krab-core/utils"
 	"github.com/labstack/echo/v4"
 )
 
-//RegisterAccount freate new accounts
+//RegisterAccount create new accounts
 func (h *Handler) RegisterAccount(c echo.Context) error {
 	req := &createAccountRequest{}
 	if err := req.bind(c); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
-	ac, err := h.accountStore.CreateAccount(req.Name, req.AccountType, req.Meta, req.ParentAccount)
+	accountName := req.AccountType + "-" + strings.ToUpper(req.Name) + "-" + strconv.Itoa(int(time.Now().Unix()))
+
+	ac, err := h.accountStore.CreateAccount(accountName, req.AccountType, req.Meta, req.ParentAccount)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, utils.StandardResponse{Success: true, Data: ac})
+	return c.JSON(http.StatusOK, ac)
+}
+
+func (h *Handler) CreateBankAccount(c echo.Context) error {
+	req := &createBankAccountRequest{}
+	if err := req.bind(c); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+	// accountName := "BANK-" + strings.ToUpper(req.BankHoldername) + "-" + strconv.Itoa(int(time.Now().Unix()))
+	ab, err := h.accountStore.CreateBankAccount(req.BankName, req.BankNumber, req.BankHoldername, req.Meta, req.Internal)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, ab)
+}
+
+func (h *Handler) CreateProjectAccount(c echo.Context) error {
+	req := &createProjectAccountRequest{}
+	if err := req.bind(c); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+	// accountName := req.AccountType + "-" + strings.ToUpper(req.Name) + "-" + strconv.Itoa(int(time.Now().Unix()))
+	err := h.accountStore.CreateFinancialAccount(req.Name, req.AccountType, req.Meta, nil)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, nil)
 }
 
 //ViewAccountSummary view current summary of an account

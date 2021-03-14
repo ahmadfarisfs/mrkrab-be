@@ -32,19 +32,20 @@ func (ps *UserStore) CreateUser(name string, username string, password string, e
 	}
 	//TODO: use transaction
 	tx := ps.db.Begin()
-
-	ret := model.User{Fullname: name, Username: username, Role: role, Email: email, Password: string(hashedPassword)}
-	err = tx.Model(&model.User{}).Create(&ret).Error
+	//create account
+	account := model.Account{
+		AccountType: "BANK", //create bank account for user
+		AccountName: "USER-" + strings.ToUpper(username) + "-" + strconv.Itoa(int(time.Now().Unix())),
+	}
+	err = tx.Model(&model.Account{}).Create(&account).Error
 	if err != nil {
 		tx.Rollback()
 		return model.User{}, err
 	}
-
-	//create account
-	err = tx.Model(&model.Account{}).Create(&model.Account{
-		AccountType: "BANK", //create bank account for user
-		AccountName: "USER-" + strings.ToUpper(username) + "-" + strconv.Itoa(int(time.Now().Unix())),
-	}).Error
+	ret := model.User{
+		AccountID: account.ID,
+		Fullname:  name, Username: username, Role: role, Email: email, Password: string(hashedPassword)}
+	err = tx.Model(&model.User{}).Create(&ret).Error
 	if err != nil {
 		tx.Rollback()
 		return model.User{}, err
