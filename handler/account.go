@@ -15,7 +15,7 @@ func (h *Handler) RegisterAccount(c echo.Context) error {
 	if err := req.bind(c); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
-	ac, err := h.accountStore.CreateAccount(req.Name, req.ParentAccount)
+	ac, err := h.accountStore.CreateAccount(req.Name, req.AccountType, req.Meta, req.ParentAccount)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}

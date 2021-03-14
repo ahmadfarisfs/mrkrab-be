@@ -23,6 +23,8 @@ content-type: application/json
 }
 
 ###
+GET http://127.0.0.1:8585/api/projects/financial/29
+###
 GET http://127.0.0.1:8585/api/projects/1
 
 ###
@@ -115,3 +117,6 @@ content-type: application/json
     "Username": "ahmad",
     "Password": "Akuinginpintar24"
 }
+
+###
+GET http://localhost:8585/api/auth/test

@@ -24,11 +24,15 @@ func (h *Handler) ListPayRec(c echo.Context) error {
 }
 
 func (h *Handler) Approve(c echo.Context) error {
+	req := &createPayRecApproveRequest{}
+	if err := req.bind(c); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
 	payRecID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
-	prd, err := h.payRecStore.Approve(uint(payRecID))
+	prd, err := h.payRecStore.Approve(uint(payRecID), int(req.SourceProjectAccountID), int(req.DestProjectAccountID), int(req.SourceBankAccountID), int(req.DestBankAccountID), &req.TrxDate)
 	if err != nil {
 		// log.Println(err)
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -55,8 +59,18 @@ func (h *Handler) CreatePayRec(c echo.Context) error {
 	if err := req.bind(c); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
+	IsReimburse := false
+	if req.TargetUserAccountID != nil {
+		IsReimburse = true
+	}
+	ret, err := h.payRecStore.CreatePayRec(req.Remarks, req.Notes, req.Meta, IsReimburse, req.Amount, (req.ProjectID),
+		req.SourceProjectAccountID,
+		req.DestProjectAccountID,
+		req.SourceBankAccountID,
+		req.DestBankAccountID,
+	)
 
-	ret, err := h.payRecStore.CreatePayRec(req.Remarks, req.Amount, uint(req.ProjectID), req.BudgetID, req.SoD)
+	//req.BudgetID, req.SoD, req.TargetUserAccountID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}

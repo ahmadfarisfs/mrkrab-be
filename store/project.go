@@ -3,6 +3,9 @@ package store
 import (
 	"log"
 	"math"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/ahmadfarisfs/krab-core/model"
 	"github.com/ahmadfarisfs/krab-core/utils"
@@ -11,42 +14,67 @@ import (
 
 type ProjectStore struct {
 	db *gorm.DB
+	// as *AccountStore
 }
 
 func NewProjectStore(db *gorm.DB) *ProjectStore {
 	return &ProjectStore{
 		db: db,
+		// as: account,
 	}
 }
 
-func (ps *ProjectStore) CreateProject(name string, accountID int, budget *uint, description *string) (model.Project, error) {
+func (ps *ProjectStore) CreateProject(name string, budget *uint, description string, budgetIDs []uint, limits []uint) (model.Project, error) {
+	var prjID uint
+	err := ps.db.Transaction(func(tx *gorm.DB) error {
+		prjAccountName := "PROJECT-" + strings.ToUpper(name) + "-" + strconv.Itoa(int(time.Now().Unix()))
+		ret := model.Account{
+			AccountName: prjAccountName,
+			AccountType: "PROJECT",
+		}
+		if err := tx.Model(&model.Account{}).Create(&ret).Error; err != nil {
+			return err
+		}
 
-	ret := model.Project{Name: name, AccountID: accountID, Amount: budget, Description: description}
-	err := ps.db.Model(&model.Project{}).Create(&ret).Error
+		rets := model.Project{Name: name, AccountID: int(ret.ID), Amount: budget, Description: description}
+		if err := tx.Model(&model.Project{}).Create(&rets).Error; err != nil {
+			return err
+		}
+
+		for idx, v := range budgetIDs {
+			mdl := model.Budget{
+				ProjectID:        ret.ID,
+				ExpenseAccountID: v,
+				Limit:            limits[idx],
+			}
+			if err := tx.Model(&model.Budget{}).Create(&mdl).Error; err != nil {
+				return err
+			}
+		}
+		prjID = ret.ID
+		return nil
+	})
 	if err != nil {
 		return model.Project{}, err
 	}
 
-	return ret, err
+	prj, _, _, err := ps.GetProjectDetails(int(prjID))
+	return prj, err
 }
 
-func (ps *ProjectStore) CreatePocket(projectID int, name string, accountID uint, limit *uint) (model.Project, error) {
+//  func(ps *ProjectStore) DeletePocket
+func (ps *ProjectStore) CreatePocket(projectID int, accountID uint, limit uint) (model.Project, error) {
 	mdl := model.Budget{
-		Name:      name,
-		ProjectID: uint(projectID),
-		Limit:     limit,
-		AccountID: accountID,
+		ProjectID:        uint(projectID),
+		Limit:            limit,
+		ExpenseAccountID: accountID,
 	}
 
-	//err := ps.db.Model(&model.Project{}).Association("Budgets").Append(&mdl)//idk why this wont work
 	err := ps.db.Model(&model.Budget{}).Create(&mdl).Error
 	if err != nil {
 		return model.Project{}, err
 	}
 	prj, _, _, err := ps.GetProjectDetails(projectID)
-	if err != nil {
-		return model.Project{}, err
-	}
 	return prj, err
 }
 
@@ -60,14 +88,15 @@ func (ps *ProjectStore) GetProjectDetails(projectID int) (model.Project, uint, [
 	return ret, uint(ret.AccountID), budgetIDs, err
 }
 
-func (ps *ProjectStore) CheckBudgetIDValidity(budgetID int, projectID int) (model.Budget, error) {
-	ret := model.Budget{}
-	err := ps.db.Model(&model.Budget{}).First(&ret, "id = ? and project_id = ?", budgetID, projectID).Error
-	if err != nil {
-		return model.Budget{}, err
-	}
-	return ret, err
-}
+// func (ps *ProjectStore) CheckBudgetIDValidity(budgetID int, projectID int) (model.Budget, error) {
+// 	ret := model.Budget{}
+// 	err := ps.db.Model(&model.Budget{}).First(&ret, "id = ? and project_id = ?", budgetID, projectID).Error
+// 	if err != nil {
+// 		return model.Budget{}, err
+// 	}
+// 	return ret, err
+// }
+// func (ps *ProjectStore) CreateProjectIncome()
 
 func (ps *ProjectStore) ListProject(req utils.CommonRequest) ([]model.Project, int, error) {
 	ret := []model.Project{}
@@ -85,7 +114,12 @@ func (ps *ProjectStore) ListProject(req utils.CommonRequest) ([]model.Project, i
 	err = quer.Preload("Budgets").Find(&ret).Error
 	return ret, int(count), err
 }
-
+func (ps *ProjectStore) UpdatePocket(id int, limit int) error {
+	return ps.db.Model(&model.Budget{}).Where("id = ?", id).Update("limit", limit).Error
+}
+func (ps *ProjectStore) DeletePocket(id int) error {
+	return ps.db.Where("id = ?", id).Delete(&model.Budget{}).Error
+}
 func (ps *ProjectStore) DeleteProject(id int) error {
 	return ps.db.Where("id = ?", id).Delete(&model.Project{}).Error
 }
@@ -93,9 +127,9 @@ func (ps *ProjectStore) DeleteProject(id int) error {
 func (ps *ProjectStore) UpdateProject(prj model.Project) error {
 	log.Println(prj)
 	editPayload := map[string]interface{}{"is_open": prj.IsOpen}
-	if prj.Description != nil {
-		editPayload["description"] = prj.Description
-	}
+	// if prj.Description != nil {
+	editPayload["description"] = prj.Description
+	// }
 	return ps.db.Model(&model.Project{}).Where("id = ?", prj.ID).Updates(editPayload).Error
 }
 func (ps *ProjectStore) GetProjectAnalysis(id int) (map[string]interface{}, error) {

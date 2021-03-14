@@ -20,8 +20,8 @@ func (h *Handler) Register(v1 *echo.Group) {
 	trxGroup.GET("/:id", h.ViewTransactionDetails)
 	trxGroup.GET("", h.ListMutation)
 
-	trfGroup := v1.Group("/transfer")
-	trfGroup.POST("", h.CreateTransfer)
+	// trfGroup := v1.Group("/transfer")
+	// trfGroup.POST("", h.CreateTransfer)
 
 	prjGroup := v1.Group("/projects")
 	prjGroup.GET("/:id", h.GetProject)
@@ -34,7 +34,7 @@ func (h *Handler) Register(v1 *echo.Group) {
 
 	prjGroup.POST("/pocket", h.CreatePocket)
 	prjGroup.POST("/transaction", h.CreateProjectTransaction)
-	prjGroup.POST("/transfer", h.CreateProjectTransfer)
+	prjGroup.POST("/transfer", h.CreateBankTransfer)
 
 	userGroup := v1.Group("/users")
 	userGroup.GET("/:id", h.GetUser)

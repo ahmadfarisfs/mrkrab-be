@@ -31,8 +31,9 @@ func (ac *AccountStore) ListAccount(req utils.CommonRequest) ([]model.Account, i
 	return ret, int(count), err
 }
 
-func (ac *AccountStore) CreateAccount(name string, parentID *uint) (model.Account, error) {
+func (ac *AccountStore) CreateAccount(name string, accountType string, meta string, parentID *uint) (model.Account, error) {
 	ret := model.Account{
+		AccountType: accountType,
 		AccountName: name,
 		ParentID:    parentID,
 	}

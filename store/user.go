@@ -21,6 +21,7 @@ func NewUserStore(db *gorm.DB) *UserStore {
 		db: db,
 	}
 }
+
 func (ps *UserStore) CreateUser(name string, username string, password string, email string, role string) (model.User, error) {
 	//TODO: add username check, email check, revive the dead account
 
@@ -30,29 +31,35 @@ func (ps *UserStore) CreateUser(name string, username string, password string, e
 		return model.User{}, err
 	}
 	//TODO: use transaction
+	tx := ps.db.Begin()
+
 	ret := model.User{Fullname: name, Username: username, Role: role, Email: email, Password: string(hashedPassword)}
-	err = ps.db.Model(&model.User{}).Create(&ret).Error
+	err = tx.Model(&model.User{}).Create(&ret).Error
 	if err != nil {
+		tx.Rollback()
 		return model.User{}, err
 	}
 
 	//create account
-	err = ps.db.Model(&model.Account{}).Create(&model.Account{
+	err = tx.Model(&model.Account{}).Create(&model.Account{
+		AccountType: "BANK", //create bank account for user
 		AccountName: "USER-" + strings.ToUpper(username) + "-" + strconv.Itoa(int(time.Now().Unix())),
 	}).Error
 	if err != nil {
+		tx.Rollback()
 		return model.User{}, err
 	}
 
-	return ret, err
+	return ret, tx.Commit().Error
 }
+
 func (ps *UserStore) ListUser(req utils.CommonRequest) ([]model.User, int, error) {
 	ret := []model.User{}
 	var count int64
 	//query builder
 	initQuery := ps.db
 
-	err := initQuery.Model(&model.User{}).Count(&count).Error
+	err := initQuery.Model(&model.User{}).Preload("Account").Count(&count).Error
 	if err != nil {
 		return ret, int(count), err
 	}

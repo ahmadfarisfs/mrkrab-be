@@ -7,17 +7,17 @@ type Project struct {
 	Account     Account `json:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Amount      *uint
 	IsOpen      bool
-	Description *string
-	IsPooling   bool
-	Budgets     []Budget `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"` //`gorm:"many2many:project_budgets;"`
+	Description string
+	// IsPooling   bool
+	Budgets []Budget `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"` //`gorm:"many2many:project_budgets;"`
 }
 
 type Budget struct {
 	BaseModel
-	Name      string
-	ProjectID uint
-	Project   Project `json:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	AccountID uint
-	Account   Account `json:"Account" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	Limit     *uint
+	// Name             string
+	ProjectID        uint
+	Project          Project `json:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	ExpenseAccountID uint
+	ExpenseAccount   Account `json:"ExpenseAccount" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Limit            uint
 }

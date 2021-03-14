@@ -1,21 +1,21 @@
 package handler
 
 import (
-	"github.com/ahmadfarisfs/krab-core/contract"
+	"github.com/ahmadfarisfs/krab-core/store"
 )
 
 type Handler struct {
-	accountStore     contract.AccountStore
-	transactionStore contract.TransactionStore
-	projectStore     contract.ProjectStore
-	userStore        contract.UserStore
-	mutationStore    contract.MutationStore
-	payRecStore      contract.PayRecStore
+	accountStore     *store.AccountStore
+	transactionStore *store.TransactionStore
+	projectStore     *store.ProjectStore
+	userStore        *store.UserStore
+	mutationStore    *store.MutationStore
+	payRecStore      *store.PayRecStore
 }
 
-func NewHandler(as contract.AccountStore, ts contract.TransactionStore,
-	ps contract.ProjectStore, us contract.UserStore,
-	ms contract.MutationStore, prs contract.PayRecStore) *Handler {
+func NewHandler(as *store.AccountStore, ts *store.TransactionStore,
+	ps *store.ProjectStore, us *store.UserStore,
+	ms *store.MutationStore, prs *store.PayRecStore) *Handler {
 
 	return &Handler{
 		accountStore:     as,

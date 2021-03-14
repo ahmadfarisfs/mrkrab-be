@@ -8,4 +8,6 @@ type Account struct {
 	Balance      int
 	TotalIncome  int
 	TotalExpense int
+	AccountType  string //ENUM: BANK, PROJECT, EXPENSE, INCOME
+	Meta         string
 }

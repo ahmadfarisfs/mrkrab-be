@@ -27,7 +27,8 @@ func (ca *createUserRequest) bind(c echo.Context) error {
 type createAccountRequest struct {
 	Name          string `validate:"required"`
 	ParentAccount *uint  `validate:"omitempty"`
-	//	AccountType string `validate:"oneof=assets expenses liabilities revenues"`
+	Meta          string `validate:"omitempty"`
+	AccountType   string `validate:"oneof=BANK EXPENSE PROJECT REVENUE"`
 }
 
 func (ca *createAccountRequest) bind(c echo.Context) error {
@@ -77,9 +78,10 @@ func (ca *createTransferRequest) bind(c echo.Context) error {
 }
 
 type createProjectRequest struct {
-	TotalBudget *uint   `validate:"omitempty"`
-	Name        string  `validate:"required"`
-	Description *string `validate:"omitempty"`
+	// TotalBudget *uint   `validate:"omitempty"`
+	Name        string `validate:"required"`
+	Description string `validate:"required"`
+	Amount      *uint  `validate:"omitempty"`
 	Budgets     []createPocketRequest
 }
 
@@ -94,9 +96,9 @@ func (ca *createProjectRequest) bind(c echo.Context) error {
 }
 
 type createPocketRequest struct {
-	ProjectID int    `validate:"omitempty"`
-	Budget    *uint  `validate:"omitempty"`
-	Name      string `validate:"required"`
+	ProjectID       int  `validate:"required"`
+	BudgetAccountID int  `validate:"required"`
+	Amount          uint `validate:"required"`
 }
 
 func (ca *createPocketRequest) bind(c echo.Context) error {
@@ -110,9 +112,9 @@ func (ca *createPocketRequest) bind(c echo.Context) error {
 }
 
 type updateProjectRequest struct {
-	ProjectID   int     `validate:"required"`
-	Status      string  `validate:"required"`
-	Description *string `validate:"omitempty"`
+	ProjectID   int    `validate:"required"`
+	Status      string `validate:"required"`
+	Description string `validate:"omitempty"`
 }
 
 func (ca *updateProjectRequest) bind(c echo.Context) error {
@@ -126,14 +128,18 @@ func (ca *updateProjectRequest) bind(c echo.Context) error {
 }
 
 type createProjectTransactionRequest struct {
-	ProjectID       int       `validate:"required"`
-	BudgetID        *uint     `validate:"omitempty"`
-	Amount          int       `validate:"required"`
+	ProjectID int `validate:"required"`
+	Amount    int `validate:"required"`
+
+	SourceProjectAccountID int `validate:"required"`
+	DestProjectAccountID   int `validate:"required"`
+
+	SourceBankAccountID int `validate:"required"`
+	DestBankAccountID   int `validate:"required"`
+
 	Remarks         string    `validate:"required"`
-	URL             string    `validate:"omitempty"`
 	Notes           string    `validate:"omitempty"`
 	Meta            string    `validate:"omitempty"`
-	SoD             string    `validate:"required"`
 	TransactionDate time.Time `validate:"required"`
 }
 
@@ -162,6 +168,50 @@ type createProjectTransferRequest struct {
 }
 
 func (ca *createProjectTransferRequest) bind(c echo.Context) error {
+	if err := c.Bind(ca); err != nil {
+		return err
+	}
+	if err := c.Validate(ca); err != nil {
+		return err
+	}
+	return nil
+}
+
+type createPayRecApproveRequest struct {
+	SourceBankAccountID uint `validate:"required"`
+	DestBankAccountID   uint `validate:"required"`
+
+	SourceProjectAccountID uint `validate:"required"`
+	DestProjectAccountID   uint `validate:"required"`
+
+	Remarks string    `validate:"required"`
+	Notes   string    `validate:"omitempty"`
+	Meta    string    `validate:"omitempty"`
+	TrxDate time.Time `validate:"required"`
+}
+
+func (ca *createPayRecApproveRequest) bind(c echo.Context) error {
+	if err := c.Bind(ca); err != nil {
+		return err
+	}
+	if err := c.Validate(ca); err != nil {
+		return err
+	}
+	return nil
+}
+
+type createBankTransferRequest struct {
+	SourceBankAccountID uint `validate:"required"`
+	DestBankAccountID   uint `validate:"required"`
+
+	Amount  uint      `validate:"required"`
+	Remarks string    `validate:"required"`
+	Notes   string    `validate:"omitempty"`
+	Meta    string    `validate:"omitempty"`
+	TrxDate time.Time `validate:"required"`
+}
+
+func (ca *createBankTransferRequest) bind(c echo.Context) error {
 	if err := c.Bind(ca); err != nil {
 		return err
 	}
@@ -203,11 +253,19 @@ func (ca *createProjectTransferRequest) analyze() (dir TransferDirection, isSame
 }
 
 type createPayRecRequest struct {
-	ProjectID int    `validate:"required"`
-	BudgetID  *uint  `validate:"omitempty"`
-	Remarks   string `validate:"required"`
-	Amount    int    `validate:"required"`
-	SoD       string `validate:"required"`
+	ProjectID int `validate:"required"`
+
+	SourceBankAccountID    *int `validate:"omitempty"`
+	DestBankAccountID      *int `validate:"omitempty"`
+	SourceProjectAccountID *int `validate:"omitempty"`
+	DestProjectAccountID   *int `validate:"omitempty"`
+
+	Remarks string `validate:"required"`
+	Amount  int    `validate:"required"`
+	Notes   string `validate:"omitempty"`
+	Meta    string `validate:"omitempty"`
+
+	TargetUserAccountID *int `validate:"omitempty"`
 }
 
 func (ca *createPayRecRequest) bind(c echo.Context) error {
