@@ -54,6 +54,10 @@ func main() {
 	r.GET("/echo", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "Hello from mrkrabs")
 	})
+
+	r.GET("/money/echo", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, "Hello from mrkrabs money")
+	})
 	//r.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	v1 := r.Group("/api")
