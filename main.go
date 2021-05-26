@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"os"
 	"strings"
 
@@ -9,6 +10,9 @@ import (
 	"github.com/ahmadfarisfs/krab-core/handler"
 	"github.com/ahmadfarisfs/krab-core/router"
 	"github.com/ahmadfarisfs/krab-core/store"
+	"github.com/labstack/echo/v4"
+
+	// "github.com/labstack/echo"
 	"github.com/spf13/viper"
 	// echo-swagger middleware
 )
@@ -47,7 +51,9 @@ func main() {
 		}
 	}
 	r := router.New()
-
+	r.GET("/echo", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, "Hello from mrkrabs")
+	})
 	//r.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	v1 := r.Group("/api")
