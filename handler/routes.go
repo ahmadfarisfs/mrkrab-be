@@ -14,13 +14,13 @@ func (h *Handler) Register(v1 *echo.Group) {
 	fAccountGroup.POST("", h.RegisterFinancialAccount)
 	fAccountGroup.GET("/:id", h.ViewFinancialAccountSummary)
 	fAccountGroup.GET("", h.ListFinancialAccount, utils.ParseCommonMiddleware)
-	fAccountGroup.PUT("/update", h.UpdateFinancialAccount)
+	fAccountGroup.PUT("", h.UpdateFinancialAccount)
 
 	bAccountGroup := v1.Group("/account/bank")
 	bAccountGroup.POST("", h.RegisterBankAccount)
 	bAccountGroup.GET("/:id", h.ViewBankAccountSummary)
 	bAccountGroup.GET("", h.ListBankAccount, utils.ParseCommonMiddleware)
-	bAccountGroup.PUT("/update", h.UpdateBankAccount)
+	bAccountGroup.PUT("", h.UpdateBankAccount)
 
 	trxGroup := v1.Group("/transactions")
 	trxGroup.POST("/income", h.CreateIncomeTransaction)

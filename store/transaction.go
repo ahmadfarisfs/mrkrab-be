@@ -38,19 +38,6 @@ func (ts *TransactionStore) CreateIncomeTransaction(amount int, remarks string, 
 			return err
 		}
 
-		//create project - account mutation
-		err = tx.Model(&model.FinancialAccountMutation{}).Create(model.FinancialAccountMutation{
-			TransactionID:   int(newTransaction.ID),
-			ProjectID:       projectID,
-			AccountID:       incomeFinancialAccountID,
-			Amount:          amount,
-			IsPaid:          isPaid,
-			TransactionCode: newTransaction.TransactionCode,
-		}).Error
-		if err != nil {
-			return err
-		}
-
 		//create bank mutation (-)
 		err = tx.Model(&model.BankAccountMutation{}).Create(model.BankAccountMutation{
 			TransactionID:   int(newTransaction.ID),
@@ -64,17 +51,31 @@ func (ts *TransactionStore) CreateIncomeTransaction(amount int, remarks string, 
 		}
 
 		//create bank mutation (+)
-		err = tx.Model(&model.BankAccountMutation{}).Create(model.BankAccountMutation{
+		baMut := model.BankAccountMutation{
 			TransactionID:   int(newTransaction.ID),
 			BankAccountID:   destinationBankAccountID,
 			Amount:          amount,
 			IsPaid:          isPaid,
 			TransactionCode: newTransaction.TransactionCode,
-		}).Error
+		}
+		err = tx.Model(&model.BankAccountMutation{}).Create(&baMut).Error
 		if err != nil {
 			return err
 		}
 
+		//create project - account mutation
+		err = tx.Model(&model.FinancialAccountMutation{}).Create(model.FinancialAccountMutation{
+			TransactionID:         int(newTransaction.ID),
+			ProjectID:             projectID,
+			AccountID:             incomeFinancialAccountID,
+			Amount:                amount,
+			IsPaid:                isPaid,
+			TransactionCode:       newTransaction.TransactionCode,
+			BankAccountMutationID: &baMut.ID,
+		}).Error
+		if err != nil {
+			return err
+		}
 		return nil
 	})
 
@@ -113,22 +114,24 @@ func (ts *TransactionStore) CreateExpenseTransaction(amount int, remarks string,
 
 		for _, expense := range expenses {
 			//create bank mutation (+)
-			err = tx.Model(&model.BankAccountMutation{}).Create(model.BankAccountMutation{
+			baMut := model.BankAccountMutation{
 				TransactionID: int(newTransaction.ID),
 				BankAccountID: expense.DestinationBankAccountID,
 				Amount:        expense.Amount,
 				IsPaid:        isPaid,
-			}).Error
+			}
+			err = tx.Model(&model.BankAccountMutation{}).Create(&baMut).Error
 			if err != nil {
 				return err
 			}
 			//create project - account mutation
 			err = tx.Model(&model.FinancialAccountMutation{}).Create(model.FinancialAccountMutation{
-				TransactionID: int(newTransaction.ID),
-				ProjectID:     projectID,
-				AccountID:     expense.ExpenseFinancialAccountID,
-				Amount:        expense.Amount,
-				IsPaid:        isPaid,
+				TransactionID:         int(newTransaction.ID),
+				ProjectID:             projectID,
+				AccountID:             expense.ExpenseFinancialAccountID,
+				Amount:                expense.Amount,
+				IsPaid:                isPaid,
+				BankAccountMutationID: &baMut.ID,
 			}).Error
 			if err != nil {
 				return err
@@ -181,13 +184,26 @@ func (ts *TransactionStore) CreateBankTransferTransaction(amount int, remarks st
 			}
 		}
 
-		//create transfer fee expense
-		err = tx.Model(&model.FinancialAccountMutation{}).Create(model.FinancialAccountMutation{
+		//create bank fee mutation (+)
+		baMut := model.BankAccountMutation{
 			TransactionID: int(newTransaction.ID),
-			ProjectID:     projectID,
-			AccountID:     transferFee.ExpenseFinancialAccountID,
+			BankAccountID: transferFee.DestinationBankAccountID,
 			Amount:        transferFee.Amount,
 			IsPaid:        isPaid,
+		}
+		err = tx.Model(&model.BankAccountMutation{}).Create(&baMut).Error
+		if err != nil {
+			return err
+		}
+
+		//create transfer fee expense
+		err = tx.Model(&model.FinancialAccountMutation{}).Create(model.FinancialAccountMutation{
+			TransactionID:         int(newTransaction.ID),
+			ProjectID:             projectID,
+			AccountID:             transferFee.ExpenseFinancialAccountID,
+			Amount:                transferFee.Amount,
+			IsPaid:                isPaid,
+			BankAccountMutationID: &baMut.ID,
 		}).Error
 		if err != nil {
 			return err

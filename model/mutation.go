@@ -6,15 +6,17 @@ import (
 
 type FinancialAccountMutation struct {
 	BaseModel
-	AccountID       int
-	Account         FinancialAccount `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	TransactionID   int
-	Transaction     Transaction `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	TransactionCode string
-	Amount          int
-	ProjectID       int
-	Project         Project `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	IsPaid          bool
+	AccountID             int
+	Account               FinancialAccount `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	TransactionID         int
+	Transaction           Transaction `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	TransactionCode       string
+	Amount                int
+	ProjectID             int
+	Project               Project `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	IsPaid                bool
+	BankAccountMutationID *uint
+	BankAccountMutation   *BankAccountMutation
 }
 
 type BankAccountMutation struct {
