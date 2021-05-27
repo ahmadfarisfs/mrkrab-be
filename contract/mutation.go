@@ -6,5 +6,6 @@ import (
 )
 
 type MutationStore interface {
-	ListMutation(req utils.CommonRequest) ([]model.MutationExtended, int, error)
+	ListBankAccountMutation(req utils.CommonRequest) ([]model.BankAccountMutation, int, error)
+	ListFinancialAccountMutation(req utils.CommonRequest) ([]model.FinancialAccountMutation, int, error)
 }

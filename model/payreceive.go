@@ -6,9 +6,9 @@ type PayRec struct {
 	TransactionCode *string
 	ProjectID       uint
 	Project         Project `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	PocketID        *uint
-	Pocket          *Budget `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	Amount          int
-	SoD             string
-	Email           string
+	// PocketID        *uint
+	// Pocket          *Budget `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Amount int
+	// SoD    string
+	Email string
 }

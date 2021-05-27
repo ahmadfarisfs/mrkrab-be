@@ -1,7 +1,10 @@
 package contract
 
+import "github.com/ahmadfarisfs/krab-core/model"
+
 type AuthStore interface {
 	Login(username, password string) error
-	// CreateAccount(name string, parentID *uint) (model.Account, error)
-	// GetAccountDetails(id int) (model.Account, error)
+	CreateUser(name string) (model.User, error)
+	UpdateUser(id int, name string, role string) error
+	GetUserDetails(id int) (model.User, error)
 }

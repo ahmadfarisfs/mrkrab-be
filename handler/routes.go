@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/ahmadfarisfs/krab-core/utils"
 	"github.com/labstack/echo/v4"
 )
 
@@ -8,20 +9,32 @@ import (
 func (h *Handler) Register(v1 *echo.Group) {
 	//	v1.Use()
 	//	v1.Use(utils.ParseCommonMiddleware)
-	accountGroup := v1.Group("/account")
-	accountGroup.POST("", h.RegisterAccount)
-	accountGroup.GET("/:id", h.ViewAccountSummary)
-	accountGroup.GET("", h.ListAccount)
-	//accountGroup.GET("/mutation", h.ViewMutation)
+
+	fAccountGroup := v1.Group("/account/financial")
+	fAccountGroup.POST("", h.RegisterFinancialAccount)
+	fAccountGroup.GET("/:id", h.ViewFinancialAccountSummary)
+	fAccountGroup.GET("", h.ListFinancialAccount, utils.ParseCommonMiddleware)
+	fAccountGroup.PUT("/update", h.UpdateFinancialAccount)
+
+	bAccountGroup := v1.Group("/account/bank")
+	bAccountGroup.POST("", h.RegisterBankAccount)
+	bAccountGroup.GET("/:id", h.ViewBankAccountSummary)
+	bAccountGroup.GET("", h.ListBankAccount, utils.ParseCommonMiddleware)
+	bAccountGroup.PUT("/update", h.UpdateBankAccount)
 
 	trxGroup := v1.Group("/transactions")
-	//shortcut - only valid for cash transaction (assets and expenses)
-	trxGroup.POST("/create", h.CreateTransaction)
-	trxGroup.GET("/:id", h.ViewTransactionDetails)
-	trxGroup.GET("", h.ListMutation)
+	trxGroup.POST("/income", h.CreateIncomeTransaction)
+	trxGroup.POST("/expense", h.CreateExpenseTransaction)
+	trxGroup.POST("/transfer/bank", h.CreateBankTransferTransaction)
+	trxGroup.POST("/transfer/project", h.CreateProjectTransferTransaction)
 
-	trfGroup := v1.Group("/transfer")
-	trfGroup.POST("", h.CreateTransfer)
+	// trxGroup.PUT("/income", h.upda)
+	// trxGroup.PUT("/expense", h.CreateExpenseTransaction)
+	// trxGroup.PUT("/transfer/bank", h.CreateBankTransferTransaction)
+	// trxGroup.PUT("/transfer/project", h.CreateProjectTransferTransaction)
+
+	trxGroup.GET("/:id", h.ViewTransactionDetails)
+	trxGroup.GET("", h.ListTransaction, utils.ParseCommonMiddleware)
 
 	prjGroup := v1.Group("/projects")
 	prjGroup.GET("/:id", h.GetProject)
@@ -32,10 +45,6 @@ func (h *Handler) Register(v1 *echo.Group) {
 	prjGroup.DELETE("/:id", h.DeleteProject)
 	prjGroup.PUT("", h.UpdateProject)
 
-	prjGroup.POST("/pocket", h.CreatePocket)
-	prjGroup.POST("/transaction", h.CreateProjectTransaction)
-	prjGroup.POST("/transfer", h.CreateProjectTransfer)
-
 	userGroup := v1.Group("/users")
 	userGroup.GET("/:id", h.GetUser)
 	userGroup.DELETE("/:id", h.DeleteUser)
@@ -43,15 +52,12 @@ func (h *Handler) Register(v1 *echo.Group) {
 	userGroup.POST("", h.CreateUser)
 
 	payRecFroup := v1.Group("/payrec")
-	// payRecFroup.GET("/:id", h.GetUser)
-	// payRecFroup.DELETE("/:id", h.DeleteUser)
 	payRecFroup.GET("", h.ListPayRec)
 	payRecFroup.POST("", h.CreatePayRec)
 	payRecFroup.PATCH("/approve/:id", h.Approve)
 	payRecFroup.PATCH("/reject/:id", h.Reject)
 
 	authGroup := v1.Group("/auth")
-	authGroup.GET("/test", h.Test)
 	authGroup.POST("/login", h.Login)
 	authGroup.POST("/authenticate", h.Authenticate)
 

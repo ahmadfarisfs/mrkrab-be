@@ -3,6 +3,7 @@ package handler
 import (
 	"time"
 
+	"github.com/ahmadfarisfs/krab-core/contract"
 	"github.com/labstack/echo/v4"
 )
 
@@ -24,13 +25,14 @@ func (ca *createUserRequest) bind(c echo.Context) error {
 	return nil
 }
 
-type createAccountRequest struct {
+type createFinancialAccountRequest struct {
 	Name          string `validate:"required"`
 	ParentAccount *uint  `validate:"omitempty"`
-	//	AccountType string `validate:"oneof=assets expenses liabilities revenues"`
+	AccountType   string `validate:"oneof=internal external"`
+	Description   string `validate:"required"`
 }
 
-func (ca *createAccountRequest) bind(c echo.Context) error {
+func (ca *createFinancialAccountRequest) bind(c echo.Context) error {
 	if err := c.Bind(ca); err != nil {
 		return err
 	}
@@ -40,15 +42,76 @@ func (ca *createAccountRequest) bind(c echo.Context) error {
 	return nil
 }
 
-type createTransactionRequest struct {
-	AccountID       int       `validate:"required"`
-	Amount          int       `validate:"required"`
-	Remarks         string    `validate:"required"`
-	SoD             string    `validate:"required"`
-	TransactionDate time.Time `validate:"required"`
+type createIncomeTransactionRequest struct {
+	Amount                   int       `validate:"required"`
+	Remarks                  string    `validate:"required"`
+	DestinationProjectID     int       `validate:"required"`
+	IncomeFinancialAccountID int       `validate:"required"`
+	SourceBankAccountID      int       `validate:"required"`
+	DestinationBankAccountID int       `validate:"required"`
+	TransactionTime          time.Time `validate:"required"`
 }
 
-func (ca *createTransactionRequest) bind(c echo.Context) error {
+func (ca *createIncomeTransactionRequest) bind(c echo.Context) error {
+	if err := c.Bind(ca); err != nil {
+		return err
+	}
+	if err := c.Validate(ca); err != nil {
+		return err
+	}
+	return nil
+}
+
+type createExpenseTransactionRequest struct {
+	Amount              int                           `validate:"required"`
+	Remarks             string                        `validate:"required"`
+	SourceProjectID     int                           `validate:"required"`
+	SourceBankAccountID int                           `validate:"required"`
+	Expenses            []contract.ExpenseDestination `validate:"required"`
+	TransactionTime     time.Time                     `validate:"required"`
+}
+
+func (ca *createExpenseTransactionRequest) bind(c echo.Context) error {
+	if err := c.Bind(ca); err != nil {
+		return err
+	}
+	if err := c.Validate(ca); err != nil {
+		return err
+	}
+	return nil
+}
+
+type createBankTransferTransactionRequest struct {
+	Amount               int                            `validate:"required"`
+	Remarks              string                         `validate:"required"`
+	TransferFeeProjectID int                            `validate:"required"`
+	SourceBankAccountID  int                            `validate:"required"`
+	Destination          []contract.TransferDestination `validate:"required"`
+	TransferFee          contract.ExpenseDestination    `validate:"required"`
+	TransactionTime      time.Time                      `validate:"required"`
+}
+
+func (ca *createBankTransferTransactionRequest) bind(c echo.Context) error {
+	if err := c.Bind(ca); err != nil {
+		return err
+	}
+	if err := c.Validate(ca); err != nil {
+		return err
+	}
+	return nil
+}
+
+type createProjectTransferTransactionRequest struct {
+	Amount                        int       `validate:"required"`
+	Remarks                       string    `validate:"required"`
+	SourceProjectID               int       `validate:"required"`
+	SourceFinancialAccountID      int       `validate:"required"`
+	DestinationProjectID          int       `validate:"required"`
+	DestinationFinancialAccountID int       `validate:"required"`
+	TransactionTime               time.Time `validate:"required"`
+}
+
+func (ca *createProjectTransferTransactionRequest) bind(c echo.Context) error {
 	if err := c.Bind(ca); err != nil {
 		return err
 	}
@@ -77,9 +140,10 @@ func (ca *createTransferRequest) bind(c echo.Context) error {
 }
 
 type createProjectRequest struct {
-	TotalBudget *uint   `validate:"omitempty"`
-	Name        string  `validate:"required"`
-	Description *string `validate:"omitempty"`
+	TotalBudget int    `validate:"required"`
+	Name        string `validate:"required"`
+	Description string `validate:"required"`
+	Status      string `validate:"required"`
 	Budgets     []createPocketRequest
 }
 
@@ -110,9 +174,11 @@ func (ca *createPocketRequest) bind(c echo.Context) error {
 }
 
 type updateProjectRequest struct {
-	ProjectID   int     `validate:"required"`
-	Status      string  `validate:"required"`
-	Description *string `validate:"omitempty"`
+	ProjectID   int    `validate:"required"`
+	Status      string `validate:"required"`
+	Description string `validate:"required"`
+	TotalBudget int    `validate:"required"`
+	Name        string `validate:"required"`
 }
 
 func (ca *updateProjectRequest) bind(c echo.Context) error {
@@ -226,6 +292,24 @@ type loginRequest struct {
 }
 
 func (ca *loginRequest) bind(c echo.Context) error {
+	if err := c.Bind(ca); err != nil {
+		return err
+	}
+	if err := c.Validate(ca); err != nil {
+		return err
+	}
+	return nil
+}
+
+type createBankAccountRequest struct {
+	BankName      string `validate:"required"`
+	HolderName    string `validate:"required"`
+	AccountNumber string `validate:"required"`
+	Description   string `validate:"required"`
+	AccountType   string `validate:"required"`
+}
+
+func (ca *createBankAccountRequest) bind(c echo.Context) error {
 	if err := c.Bind(ca); err != nil {
 		return err
 	}

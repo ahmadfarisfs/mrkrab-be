@@ -37,7 +37,7 @@ func (ps *UserStore) CreateUser(name string, username string, password string, e
 	}
 
 	//create account
-	err = ps.db.Model(&model.Account{}).Create(&model.Account{
+	err = ps.db.Model(&model.FinancialAccount{}).Create(&model.FinancialAccount{
 		AccountName: "USER-" + strings.ToUpper(username) + "-" + strconv.Itoa(int(time.Now().Unix())),
 	}).Error
 	if err != nil {
@@ -66,4 +66,10 @@ func (ps *UserStore) ListUser(req utils.CommonRequest) ([]model.User, int, error
 
 func (ps *UserStore) DeleteUser(id int) error {
 	return ps.db.Where("id = ?", id).Delete(&model.User{}).Error
+}
+
+func (ps *UserStore) GetUserDetails(id int) (model.User, error) {
+	usr := model.User{}
+	err := ps.db.Model(&model.User{}).Where("id= ?", id).First(&usr).Error
+	return usr, err
 }

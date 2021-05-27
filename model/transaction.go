@@ -4,10 +4,24 @@ import "time"
 
 type Transaction struct {
 	BaseModel
-	TransactionCode string
+	TransactionCode string `gorm:"unique"`
 	Remarks         string
-	IsTransfer      bool
-	Mutation        []Mutation `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	TransactionDate time.Time
-	// SoD             string
+	TransactionType string //income, expense, bank transfer or account transfer
+	TransactionTime time.Time
+	BankMutation    []BankAccountMutation
+	AccountMutation []FinancialAccountMutation
+	IsPaid          bool
+	Amount          int
+	//redundant field for frontend clarity
+	// SourceBankID *int
+	// SourceBank   *BankAccount
+
+	// SourceProjectID *int
+	// SourceProject   *Project
+
+	// DestinationBankID *int
+	// DestinationBank   *BankAccount
+
+	// DestinationProjectID *int
+	// DestinationProject   *Project
 }

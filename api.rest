@@ -1,0 +1,1 @@
+GET https://api.hardtmann.id/money/echo

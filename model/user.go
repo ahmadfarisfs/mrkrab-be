@@ -7,6 +7,6 @@ type User struct {
 	Role      string
 	Password  string `json:"-"`
 	Email     string `gorm:"unique"`
-	Account   *Account
+	Account   *BankAccount
 	AccountID *int
 }

@@ -5,17 +5,22 @@ import (
 )
 
 type Handler struct {
-	accountStore     contract.AccountStore
+	accountStore     contract.FinancialAccountStore
+	bankStore        contract.BankAccountStore
 	transactionStore contract.TransactionStore
 	projectStore     contract.ProjectStore
 	userStore        contract.UserStore
 	mutationStore    contract.MutationStore
-	payRecStore      contract.PayRecStore
+	authStore        contract.AuthStore
 }
 
-func NewHandler(as contract.AccountStore, ts contract.TransactionStore,
-	ps contract.ProjectStore, us contract.UserStore,
-	ms contract.MutationStore, prs contract.PayRecStore) *Handler {
+func NewHandler(as contract.FinancialAccountStore, bs contract.BankAccountStore,
+	ts contract.TransactionStore,
+	ps contract.ProjectStore,
+	us contract.UserStore,
+	ms contract.MutationStore,
+	// hs contract.AuthStore,
+) *Handler {
 
 	return &Handler{
 		accountStore:     as,
@@ -23,6 +28,7 @@ func NewHandler(as contract.AccountStore, ts contract.TransactionStore,
 		projectStore:     ps,
 		userStore:        us,
 		mutationStore:    ms,
-		payRecStore:      prs,
+		// authStore:        hs,
+		bankStore: bs,
 	}
 }
