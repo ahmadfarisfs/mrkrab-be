@@ -390,6 +390,7 @@ func (ts *TransactionStore) GetTransactionDetailsbyID(transactionID int) (model.
 	err := ts.db.Model(&model.Transaction{}).Preload(clause.Associations).Where("id= ?", transactionID).First(&trx).Error
 	return trx, err
 }
+
 func (ts *TransactionStore) GetTransactionDetailsbyCode(transactionCode string) (model.Transaction, error) {
 	trx := model.Transaction{}
 	err := ts.db.Model(&model.Transaction{}).Where("transaction_code= ?", transactionCode).First(&trx).Error

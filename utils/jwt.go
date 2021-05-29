@@ -4,9 +4,8 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/spf13/viper"
 )
-
-var JWTSecret = []byte("!!SECRET!!")
 
 func GenerateJWT(id uint, role string, name string, username string) string {
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -16,6 +15,6 @@ func GenerateJWT(id uint, role string, name string, username string) string {
 	claims["name"] = name
 	claims["username"] = username
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
-	t, _ := token.SignedString(JWTSecret)
+	t, _ := token.SignedString(viper.GetString("secret"))
 	return t
 }

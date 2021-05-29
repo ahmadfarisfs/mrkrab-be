@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
+	"github.com/spf13/viper"
 )
 
 func New() *echo.Echo {
@@ -19,13 +20,10 @@ func New() *echo.Echo {
 	e.Use(middleware.CORS())
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		Claims:     &jwt.MapClaims{},
-		SigningKey: []byte("!!SECRET!!"),
+		SigningKey: []byte(viper.GetString("secret")),
 		Skipper: func(c echo.Context) bool {
-			fmt.Println("JWT: " + c.Path())
-			if strings.HasSuffix(c.Path(), "/auth/login") {
-				return true
-			}
-			return false
+			fmt.Println("JWT Path : " + c.Path())
+			return strings.HasSuffix(c.Path(), "/auth/login")
 		},
 	}))
 	/*	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
