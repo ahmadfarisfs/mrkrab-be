@@ -21,7 +21,7 @@ type FinancialAccountMutation struct {
 
 type BankAccountMutation struct {
 	BaseModel
-	BankAccountID   int
+	BankID          int
 	Bank            BankAccount `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"-"`
 	TransactionID   int
 	Transaction     Transaction `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"-"`

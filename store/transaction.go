@@ -41,7 +41,7 @@ func (ts *TransactionStore) CreateIncomeTransaction(amount int, remarks string, 
 		//create bank mutation (-)
 		err = tx.Model(&model.BankAccountMutation{}).Create(model.BankAccountMutation{
 			TransactionID:   int(newTransaction.ID),
-			BankAccountID:   sourceBankAccountID,
+			BankID:          sourceBankAccountID,
 			Amount:          -amount,
 			IsPaid:          isPaid,
 			TransactionCode: newTransaction.TransactionCode,
@@ -53,7 +53,7 @@ func (ts *TransactionStore) CreateIncomeTransaction(amount int, remarks string, 
 		//create bank mutation (+)
 		baMut := model.BankAccountMutation{
 			TransactionID:   int(newTransaction.ID),
-			BankAccountID:   destinationBankAccountID,
+			BankID:          destinationBankAccountID,
 			Amount:          amount,
 			IsPaid:          isPaid,
 			TransactionCode: newTransaction.TransactionCode,
@@ -104,7 +104,7 @@ func (ts *TransactionStore) CreateExpenseTransaction(amount int, remarks string,
 		//create bank mutation (-)
 		err = tx.Model(&model.BankAccountMutation{}).Create(model.BankAccountMutation{
 			TransactionID: int(newTransaction.ID),
-			BankAccountID: sourceBankAccountID,
+			BankID:        sourceBankAccountID,
 			Amount:        -amount,
 			IsPaid:        isPaid,
 		}).Error
@@ -116,7 +116,7 @@ func (ts *TransactionStore) CreateExpenseTransaction(amount int, remarks string,
 			//create bank mutation (+)
 			baMut := model.BankAccountMutation{
 				TransactionID: int(newTransaction.ID),
-				BankAccountID: expense.DestinationBankAccountID,
+				BankID:        expense.DestinationBankAccountID,
 				Amount:        expense.Amount,
 				IsPaid:        isPaid,
 			}
@@ -163,7 +163,7 @@ func (ts *TransactionStore) CreateBankTransferTransaction(amount int, remarks st
 		//create bank mutation (-)
 		err = tx.Model(&model.BankAccountMutation{}).Create(model.BankAccountMutation{
 			TransactionID: int(newTransaction.ID),
-			BankAccountID: sourceBankAccountID,
+			BankID:        sourceBankAccountID,
 			Amount:        -amount,
 			IsPaid:        isPaid,
 		}).Error
@@ -175,7 +175,7 @@ func (ts *TransactionStore) CreateBankTransferTransaction(amount int, remarks st
 			//create bank mutation (+)
 			err = tx.Model(&model.BankAccountMutation{}).Create(model.BankAccountMutation{
 				TransactionID: int(newTransaction.ID),
-				BankAccountID: expense.DestinationBankAccountID,
+				BankID:        expense.DestinationBankAccountID,
 				Amount:        expense.Amount,
 				IsPaid:        isPaid,
 			}).Error
@@ -187,7 +187,7 @@ func (ts *TransactionStore) CreateBankTransferTransaction(amount int, remarks st
 		//create bank fee mutation (+)
 		baMut := model.BankAccountMutation{
 			TransactionID: int(newTransaction.ID),
-			BankAccountID: transferFee.DestinationBankAccountID,
+			BankID:        transferFee.DestinationBankAccountID,
 			Amount:        transferFee.Amount,
 			IsPaid:        isPaid,
 		}
@@ -290,7 +290,7 @@ func (ts *TransactionStore) UpdateIncomeTransaction(id int, amount int, remarks 
 
 			//fill new data
 			bankMut.Amount = -amount
-			bankMut.BankAccountID = sourceBankAccountID
+			bankMut.BankID = sourceBankAccountID
 			bankMut.IsPaid = isPaid
 
 			//update the mutation
@@ -311,7 +311,7 @@ func (ts *TransactionStore) UpdateIncomeTransaction(id int, amount int, remarks 
 
 			//fill new data
 			bankMutDest.Amount = amount
-			bankMutDest.BankAccountID = destinationBankAccountID
+			bankMutDest.BankID = destinationBankAccountID
 			bankMutDest.IsPaid = isPaid
 
 			//update the mutation
